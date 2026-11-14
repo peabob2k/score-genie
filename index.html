@@ -19,28 +19,56 @@
 <style>
 body{margin:0;background:#173b2c}
 .bar{background:#173b2c;padding:calc(6px + env(safe-area-inset-top,0px)) 12px 6px;display:flex;justify-content:center}
-.seg{display:grid;grid-template-columns:repeat(4,1fr);background:rgba(0,0,0,.28);border-radius:999px;padding:3px;width:100%;max-width:480px}
-.seg button{border:0;background:transparent;color:#f4efe4;font:600 12px/1 Barlow,system-ui,-apple-system,sans-serif;padding:7px 4px;white-space:nowrap;border-radius:999px;cursor:pointer}
-.seg button[aria-selected="true"]{background:#fbf8f2;color:#1d1b19}
-.seg button:focus-visible{outline:3px solid #e9c46a;outline-offset:2px}
+.bar{position:relative}
+.pick-btn{display:flex;align-items:center;gap:8px;width:100%;max-width:480px;border:0;border-radius:999px;background:rgba(0,0,0,.28);color:#f4efe4;padding:7px 14px;font:600 14px/1.1 Barlow,system-ui,-apple-system,sans-serif;cursor:pointer;text-align:left}
+.pick-btn .pick-app{font-weight:500;font-size:12px;opacity:.7;white-space:nowrap}
+.pick-btn .pick-name{flex:1;font-size:15px}
+.pick-btn:focus-visible,.pick-list button:focus-visible{outline:3px solid #e9c46a;outline-offset:2px}
+.pick-list{position:absolute;left:12px;right:12px;top:calc(100% - 2px);max-width:480px;margin:0 auto;background:#fbf8f2;color:#1d1b19;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.3);padding:4px;z-index:100;display:flex;flex-direction:column}
+.pick-list[hidden]{display:none}
+.pick-list button{display:flex;justify-content:space-between;align-items:center;gap:10px;border:0;background:none;text-align:left;padding:10px 12px;border-radius:8px;font:600 15px Barlow,system-ui,sans-serif;color:#1d1b19;cursor:pointer}
+.pick-list button small{display:block;font-weight:400;font-size:12px;color:#5b7169;margin-top:2px}
+.pick-list button[aria-checked="true"]{background:#e4ece7}
+.pick-list button[aria-checked="true"]::after{content:"✓";color:#1f6b52;font-weight:700}
+.pick-list button:hover{background:#eef3f0}
 .host{display:block}
 .host[hidden]{display:none!important}
-@media print{.bar{display:none!important} body{background:#fff}}
+.ask-wrap{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px}
+.ask-wrap[hidden]{display:none}
+.ask-scrim{position:absolute;inset:0;background:rgba(6,20,16,.55)}
+.ask-box{position:relative;background:#fbf8f2;color:#14302A;border-radius:16px;padding:18px;max-width:340px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.35);font-family:Barlow,system-ui,-apple-system,sans-serif}
+.ask-box p{margin:0 0 16px;font-size:17px;line-height:1.35;font-weight:500}
+.ask-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ask-actions button{border:none;border-radius:12px;padding:13px;font:600 16px Barlow,system-ui,sans-serif;cursor:pointer}
+#askNo{background:transparent;color:#14302A;box-shadow:inset 0 0 0 1px #C9D7D0}
+#askYes{background:#1F6B52;color:#fff}
+#askYes.danger{background:#B3261E}
+.ask-actions button:focus-visible{outline:3px solid #e9c46a;outline-offset:2px}
+@media (prefers-color-scheme: dark){.ask-box{background:#16302A;color:#E7F0EB} #askNo{color:#E7F0EB;box-shadow:inset 0 0 0 1px #284840}}
+@media print{.bar,.ask-wrap{display:none!important} body{background:#fff}}
 </style>
 </head>
 <body>
 <div class="bar">
-  <div class="seg" role="tablist" aria-label="Which game">
-    <button type="button" role="tab" data-game="mt" aria-selected="true">Mexican Train</button>
-    <button type="button" role="tab" data-game="hf" aria-selected="false">Hand &amp; Foot</button>
-    <button type="button" role="tab" data-game="oh" aria-selected="false">Oh Heck</button>
-    <button type="button" role="tab" data-game="golf" aria-selected="false">Golf</button>
+  <button type="button" class="pick-btn" id="pickBtn" aria-haspopup="true" aria-expanded="false" aria-controls="pickList">
+    <span class="pick-app">Game Score Genie</span><span class="pick-name" id="pickName">Mexican Train</span><span aria-hidden="true">▾</span>
+  </button>
+  <div class="pick-list" id="pickList" role="menu" aria-label="Pick a game" hidden>
+    <button type="button" role="menuitemradio" data-game="mt"><span>Mexican Train<small>Dominoes · low score wins</small></span></button>
+    <button type="button" role="menuitemradio" data-game="hf"><span>Hand &amp; Foot<small>Cards · high score wins</small></span></button>
+    <button type="button" role="menuitemradio" data-game="oh"><span>Oh Heck<small>Cards · bid your tricks</small></span></button>
+    <button type="button" role="menuitemradio" data-game="golf"><span>Golf<small>Cards · 4-card or 6-card</small></span></button>
+    <button type="button" role="menuitemradio" data-game="rummy"><span>Rummy<small>Cards · race to a target</small></span></button>
+    <button type="button" role="menuitemradio" data-game="spades"><span>Spades<small>Cards · bid and take tricks, 2–4 players</small></span></button>
   </div>
 </div>
+<div class="ask-wrap" id="askWrap" hidden><div class="ask-scrim"></div><div class="ask-box" role="alertdialog" aria-modal="true" aria-labelledby="askMsg"><p id="askMsg"></p><div class="ask-actions"><button type="button" id="askNo">Cancel</button><button type="button" id="askYes">OK</button></div></div></div>
 <div class="host" id="host-mt"></div>
 <div class="host" id="host-hf" hidden></div>
 <div class="host" id="host-oh" hidden></div>
 <div class="host" id="host-golf" hidden></div>
+<div class="host" id="host-rummy" hidden></div>
+<div class="host" id="host-spades" hidden></div>
 
 <template id="tpl-mt"><style>
 :host{
@@ -129,13 +157,13 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
 .seg{display:inline-flex;flex-shrink:0;border:1px solid var(--line);border-radius:999px;padding:2px}
 .seg button{border:none;background:none;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:500;color:var(--muted)}
 .seg button[aria-pressed="true"]{background:var(--felt);color:var(--felt-ink)}
-.pad{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.pad{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .half{aspect-ratio:1/1;border:none;border-radius:10px;background:var(--tile);color:var(--tile-ink);box-shadow:inset 0 0 0 1.5px rgba(20,48,42,.3),0 2px 0 rgba(20,48,42,.18);font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:26px}
 .half:active{transform:translateY(1px);box-shadow:inset 0 0 0 1.5px rgba(20,48,42,.3)}
 .half.blank{font-size:15px;font-weight:600}
 .half small{display:block;font-family:Barlow,sans-serif;font-size:11px;font-weight:500;opacity:.7;margin-top:2px}
 .half{position:relative}
-.half svg{display:block;width:66%;height:66%;margin:auto;transform:translateY(10%)}
+.half svg{display:block;width:88%;height:88%;margin:auto;transform:translate(4%,6%)}
 .half .corner{position:absolute;top:3px;left:5px;font-family:"Barlow Condensed",sans-serif;font-size:16px;font-weight:700;line-height:1;opacity:.75}
 .half svg circle{fill:var(--tile-ink)}
 .tools{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
@@ -217,6 +245,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
 }
 
 :host{display:block;padding-top:0!important}
+.app{min-height:100vh;min-height:100dvh}
 </style><div class="app">
 <div class="wrap">
   <header>
@@ -465,6 +494,8 @@ tr:last-child td{border-bottom:0}
 .stand input:hover{border-color:var(--rule)}
 .stand .tot{font-family:"Alegreya",serif; font-weight:800; font-size:1.35rem; line-height:1.1}
 .open{margin-left:auto; font-family:"Alegreya Sans",sans-serif; font-weight:500; font-size:0.95rem; color:var(--muted)}
+.starter{margin:-0.3rem 0 0.7rem; font-family:Barlow,system-ui,sans-serif; font-size:0.95rem; color:var(--muted)}
+.starter b{color:var(--ink); font-weight:600}
 .open b{color:var(--ink)}
 .app::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:10; background:var(--felt-deep)}
 input{font:inherit; color:var(--ink); background:var(--chip); border:1px solid var(--rule); border-radius:8px; padding:0.45rem 0.5rem; width:100%; min-width:0}
@@ -539,6 +570,7 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
 }
 
 :host{display:block;padding-top:0!important}
+.app{min-height:100vh;min-height:100dvh}
 </style><div class="app">
 <div class="wrap">
   <header>
@@ -572,6 +604,7 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
         <li>Of the two piles you get, one is your <b>hand</b> to play first and the other is your <b>foot</b>, set aside face down.</li>
         <li>Everyone plays alone and builds their own melds.</li>
         <li>Flip one card to start the discard pile.</li>
+        <li>Sit in the order the players are listed. Pick who starts round 1 when you set up the game (for example, the player left of the dealer). Each round, the start moves one player to the left. The Score tab shows who’s up, like “50 to you, Bob.”</li>
       </ul>
     </section>
 
@@ -735,13 +768,13 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
 .seg{display:inline-flex;flex-shrink:0;border:1px solid var(--line);border-radius:999px;padding:2px}
 .seg button{border:none;background:none;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:500;color:var(--muted)}
 .seg button[aria-pressed="true"]{background:var(--felt);color:var(--felt-ink)}
-.pad{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.pad{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .half{aspect-ratio:1/1;border:none;border-radius:10px;background:var(--tile);color:var(--tile-ink);box-shadow:inset 0 0 0 1.5px rgba(20,48,42,.3),0 2px 0 rgba(20,48,42,.18);font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:26px}
 .half:active{transform:translateY(1px);box-shadow:inset 0 0 0 1.5px rgba(20,48,42,.3)}
 .half.blank{font-size:15px;font-weight:600}
 .half small{display:block;font-family:Barlow,sans-serif;font-size:11px;font-weight:500;opacity:.7;margin-top:2px}
 .half{position:relative}
-.half svg{display:block;width:66%;height:66%;margin:auto;transform:translateY(10%)}
+.half svg{display:block;width:88%;height:88%;margin:auto;transform:translate(4%,6%)}
 .half .corner{position:absolute;top:3px;left:5px;font-family:"Barlow Condensed",sans-serif;font-size:16px;font-weight:700;line-height:1;opacity:.75}
 .half svg circle{fill:var(--tile-ink)}
 .tools{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
@@ -823,6 +856,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
 }
 
 :host{display:block;padding-top:0!important}
+.app{min-height:100vh;min-height:100dvh}
 
 .cell{position:relative}
 .cell .sc{font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:24px;line-height:1}
@@ -1043,13 +1077,13 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
 .seg{display:inline-flex;flex-shrink:0;border:1px solid var(--line);border-radius:999px;padding:2px}
 .seg button{border:none;background:none;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:500;color:var(--muted)}
 .seg button[aria-pressed="true"]{background:var(--felt);color:var(--felt-ink)}
-.pad{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.pad{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
 .half{aspect-ratio:1/1;border:none;border-radius:10px;background:var(--tile);color:var(--tile-ink);box-shadow:inset 0 0 0 1.5px rgba(20,48,42,.3),0 2px 0 rgba(20,48,42,.18);font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:26px}
 .half:active{transform:translateY(1px);box-shadow:inset 0 0 0 1.5px rgba(20,48,42,.3)}
 .half.blank{font-size:15px;font-weight:600}
 .half small{display:block;font-family:Barlow,sans-serif;font-size:11px;font-weight:500;opacity:.7;margin-top:2px}
 .half{position:relative}
-.half svg{display:block;width:66%;height:66%;margin:auto;transform:translateY(10%)}
+.half svg{display:block;width:88%;height:88%;margin:auto;transform:translate(4%,6%)}
 .half .corner{position:absolute;top:3px;left:5px;font-family:"Barlow Condensed",sans-serif;font-size:16px;font-weight:700;line-height:1;opacity:.75}
 .half svg circle{fill:var(--tile-ink)}
 .tools{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
@@ -1131,6 +1165,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
 }
 
 :host{display:block;padding-top:0!important}
+.app{min-height:100vh;min-height:100dvh}
 
 .cell{position:relative}
 .cell .sc{font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:24px;line-height:1}
@@ -1262,8 +1297,681 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
 <div id="printArea"></div>
 </div></template>
 
+<template id="tpl-rummy"><style>
+:host{
+  --bg:#E4ECE7; --surface:#FFFFFF; --ink:#14302A; --muted:#5B7169; --line:#C9D7D0;
+  --felt:#1F6B52; --felt-ink:#FFFFFF; --tile:#FBFAF6; --tile-ink:#14302A; --pip:#B3261E;
+  --gold:#E0A526; --gold-soft:#FBEFCF; --now:#D7EBE1;
+  --shadow:0 1px 0 rgba(20,48,42,.12), 0 2px 6px rgba(20,48,42,.08);
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :host{
+    --bg:#0E211B; --surface:#16302A; --ink:#E7F0EB; --muted:#93AAA1; --line:#284840;
+    --felt:#2E8F6E; --felt-ink:#FFFFFF; --tile:#EDEBE3; --tile-ink:#14302A; --pip:#B3261E;
+    --gold:#E9B444; --gold-soft:#3A3318; --now:#1D3D34;
+    --shadow:0 1px 0 rgba(0,0,0,.4);
+    color-scheme:dark;
+  }
+}
+:host([data-theme="dark"]){
+  --bg:#0E211B; --surface:#16302A; --ink:#E7F0EB; --muted:#93AAA1; --line:#284840;
+  --felt:#2E8F6E; --felt-ink:#FFFFFF; --tile:#EDEBE3; --tile-ink:#14302A; --pip:#B3261E;
+  --gold:#E9B444; --gold-soft:#3A3318; --now:#1D3D34;
+  --shadow:0 1px 0 rgba(0,0,0,.4);
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+.app{margin:0;background:var(--bg);color:var(--ink);font-family:Barlow,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.4;-webkit-tap-highlight-color:transparent}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.num{font-family:"Barlow Condensed",Barlow,system-ui,sans-serif;font-variant-numeric:tabular-nums}
+
+.wrap{max-width:560px;margin:0 auto;padding:8px 14px 140px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:2px}
+h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20px;line-height:1;margin:0;letter-spacing:.2px}
+.ghost{background:none;border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-weight:500;font-size:12px;color:var(--muted)}
+
+.grid{display:grid;grid-template-columns:64px repeat(3,1fr);gap:6px;align-items:stretch}
+.names input{width:100%;min-width:0;border:none;border-bottom:2px solid var(--line);background:transparent;padding:6px 2px;font-weight:600;font-size:17px;text-align:center;border-radius:0}
+.names input:focus{outline:none;border-bottom-color:var(--felt)}
+.names{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5;padding:6px 0 8px}
+.app::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+
+/* Round tile: a double domino */
+.tile{display:flex;flex-direction:column;align-items:center;justify-content:center;width:40px;margin:0 auto;background:var(--tile);color:var(--tile-ink);border-radius:7px;box-shadow:inset 0 0 0 1.5px rgba(20,48,42,.35);height:100%;min-height:58px}
+.tile span{flex:1;display:flex;align-items:center;justify-content:center;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:18px;line-height:1;width:100%}
+.tile i{display:block;width:70%;height:1.5px;background:rgba(20,48,42,.35)}
+.row.now .tile{box-shadow:inset 0 0 0 2px var(--pip)}
+.row.now .tile span{color:var(--pip)}
+
+.cell{width:100%;min-height:58px;border:none;border-radius:10px;background:var(--surface);box-shadow:var(--shadow);font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:26px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.cell small{font-family:Barlow,sans-serif;font-size:11px;font-weight:500;color:var(--muted);margin-top:3px}
+.cell.empty{color:var(--muted);font-size:15px;font-weight:500;font-family:Barlow,sans-serif;background:transparent;box-shadow:inset 0 0 0 1.5px var(--line)}
+.row.now .cell.empty{background:var(--now);box-shadow:none;color:var(--ink)}
+.cell.zero{color:var(--felt)}
+.row{margin-bottom:6px}
+
+/* Totals */
+.totals{position:fixed;left:0;right:0;bottom:0;background:var(--felt);color:var(--felt-ink);padding:10px 14px calc(12px + env(safe-area-inset-bottom,0px));z-index:20}
+.totals .grid{max-width:532px;margin:0 auto}
+.totals .lbl{font-size:13px;font-weight:500;align-self:center;text-align:center;opacity:.85;line-height:1.15}
+.tot{text-align:center;border-radius:10px;padding:6px 2px}
+.tot b{display:block;font-family:"Barlow Condensed",sans-serif;font-size:32px;font-weight:700;line-height:1}
+.tot span{display:block;font-size:12px;opacity:.85;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tot.lead{background:var(--gold);color:#2A1E00}
+.tot.lead span{opacity:1}
+
+/* Sheet */
+.scrim{position:fixed;inset:0;background:rgba(6,20,16,.5);z-index:30;display:none}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:31;background:var(--surface);border-radius:18px 18px 0 0;padding:10px 14px calc(12px + env(safe-area-inset-bottom,0px));max-width:560px;margin:0 auto;transform:translateY(105%);transition:transform .22s ease;max-height:92vh;overflow:auto}
+.open .scrim{display:block}
+.open .sheet{transform:none}
+@media (prefers-reduced-motion: reduce){.sheet{transition:none}}
+.sheet-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.sheet h2{margin:0;font-size:15px;font-weight:600}
+.sheet .sub{color:var(--muted);font-size:13px}
+.readout{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:4px 0 2px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.readout b{font-family:"Barlow Condensed",sans-serif;font-size:40px;font-weight:700;line-height:.9}
+.trail{color:var(--muted);font-size:14px;text-align:right;flex:1;min-height:20px;overflow-wrap:anywhere}
+.hint{font-size:13px;color:var(--muted);margin:0}
+.view{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:6px 0 8px}
+.seg{display:inline-flex;flex-shrink:0;border:1px solid var(--line);border-radius:999px;padding:2px}
+.seg button{border:none;background:none;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:500;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--felt);color:var(--felt-ink)}
+.pad{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.half{aspect-ratio:1/1;border:none;border-radius:10px;background:var(--tile);color:var(--tile-ink);box-shadow:inset 0 0 0 1.5px rgba(20,48,42,.3),0 2px 0 rgba(20,48,42,.18);font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:26px}
+.half:active{transform:translateY(1px);box-shadow:inset 0 0 0 1.5px rgba(20,48,42,.3)}
+.half.blank{font-size:15px;font-weight:600}
+.half small{display:block;font-family:Barlow,sans-serif;font-size:11px;font-weight:500;opacity:.7;margin-top:2px}
+.half{position:relative}
+.half svg{display:block;width:88%;height:88%;margin:auto;transform:translate(4%,6%)}
+.half .corner{position:absolute;top:3px;left:5px;font-family:"Barlow Condensed",sans-serif;font-size:16px;font-weight:700;line-height:1;opacity:.75}
+.half svg circle{fill:var(--tile-ink)}
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.tools button{border:1px solid var(--line);background:transparent;border-radius:10px;padding:10px 6px;font-weight:500;font-size:15px}
+.typed{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:14px;color:var(--muted)}
+.typed input{flex:1;min-width:0;border:1px solid var(--line);background:transparent;border-radius:10px;padding:9px 12px;font-size:17px;color:var(--ink)}
+.actions{display:grid;grid-template-columns:1fr 2fr;gap:8px;margin-top:14px}
+.actions button{border:none;border-radius:12px;padding:14px;font-weight:600;font-size:16px}
+.cancel{background:transparent;box-shadow:inset 0 0 0 1px var(--line)}
+.save{background:var(--felt);color:var(--felt-ink)}
+.out{display:block;width:100%;margin-top:8px;border:none;border-radius:12px;padding:12px;font-weight:600;background:var(--now);color:var(--ink)}
+.clearscore{display:block;margin:10px auto 0;background:none;border:none;color:var(--pip);font-size:14px;font-weight:500;padding:6px}
+
+.done{margin:14px 0 0;padding:14px;border-radius:12px;background:var(--gold-soft);text-align:center;font-weight:600;display:none}
+
+.hbtns{display:flex;gap:6px}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);background:var(--line);border-radius:999px;padding:3px;margin:4px 0 10px}
+.tab{border:none;background:transparent;border-radius:999px;padding:7px 6px;font-weight:600;font-size:14px;color:var(--ink)}
+.tab[aria-selected="true"]{background:var(--felt);color:var(--felt-ink)}
+.gmenu{position:relative}
+.gmenu-list{position:absolute;right:0;top:calc(100% + 6px);z-index:30;background:var(--surface);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.22),0 0 0 1px var(--line);min-width:240px;padding:4px;display:flex;flex-direction:column}
+.gmenu-list[hidden]{display:none}
+.gmenu-list button{appearance:none;border:none;background:none;text-align:left;padding:10px 12px;border-radius:8px;font:600 15px Barlow,system-ui,sans-serif;color:var(--ink);cursor:pointer}
+.gmenu-list button small{display:block;font-weight:400;font-size:12px;color:var(--muted);margin-top:2px}
+.gmenu-list button:hover:not(:disabled){background:var(--now)}
+.gmenu-list button:disabled{opacity:.4;cursor:default}
+.gmenu-list button:focus-visible{outline:3px solid var(--gold);outline-offset:-3px}
+.gmenu-list .danger{color:var(--pip)}
+
+[hidden]{display:none!important}
+.rules-view section{background:var(--surface);border-radius:12px;box-shadow:var(--shadow);padding:12px 14px;margin-bottom:8px}
+.rules-view h2{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:21px;margin:0 0 6px;display:flex;align-items:center;gap:8px}
+.rules-view h2::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--pip);flex-shrink:0}
+.rules-view ul,.rules-view ol{margin:0;padding-left:1.15rem}
+.rules-view li{margin:.3rem 0}
+.rules-view li::marker{color:var(--muted)}
+.rules-view .note{color:var(--muted);font-size:14px;margin:.5rem 0 0}
+.rules-view table{width:100%;border-collapse:collapse}
+.rules-view td{padding:6px 0;border-bottom:1px solid var(--line)}
+.rules-view tr:last-child td{border-bottom:0}
+.rules-view td:last-child{text-align:right;font-weight:700;font-family:"Barlow Condensed",sans-serif;font-size:18px;white-space:nowrap}
+.rfoot{text-align:center;color:var(--muted);font-size:13px;margin:10px 0}
+.rsum{font-size:14px;color:var(--muted);background:var(--surface);border-radius:12px;box-shadow:var(--shadow);padding:10px 14px;margin:0 0 8px}
+.rsum b{color:var(--ink)}
+.grules{font-size:13px;color:var(--muted);margin:2px 0 6px}
+.hactions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.btn{border:none;border-radius:10px;padding:11px 8px;font-weight:600;font-size:15px;background:var(--felt);color:var(--felt-ink)}
+.btn.alt{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
+.btn.warn{background:transparent;color:var(--pip);box-shadow:inset 0 0 0 1px var(--line)}
+.empty-h{color:var(--muted);text-align:center;padding:30px 10px}
+.game{background:var(--surface);border-radius:12px;box-shadow:var(--shadow);margin-bottom:8px;overflow:hidden}
+.game summary{list-style:none;padding:10px 12px;cursor:pointer}
+.game summary::-webkit-details-marker{display:none}
+.gmeta{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--muted);margin-bottom:6px}
+.tag{font-size:12px;font-weight:600;color:var(--pip)}
+.gtots{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.gtots div{text-align:center;border-radius:8px;padding:4px 2px}
+.gtots b{display:block;font-family:"Barlow Condensed",sans-serif;font-size:24px;line-height:1.05}
+.gtots span{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gtots .win{background:var(--gold-soft)}
+.gbody{padding:0 12px 12px}
+.gt{width:100%;border-collapse:collapse;font-size:14px;margin:4px 0 10px}
+.gt th,.gt td{padding:5px 4px;text-align:center;border-bottom:1px solid var(--line)}
+.gt th{font-weight:600;font-size:13px;color:var(--muted)}
+.gt td{font-family:"Barlow Condensed",sans-serif;font-size:17px}
+.gt tfoot td{font-weight:700;border-bottom:none;font-size:19px}
+.gactions{display:grid;grid-template-columns:2fr 1fr;gap:8px}
+.done button{margin-top:8px}
+#printArea{display:none}
+@media print{
+  .app{background:#fff!important;color:#000!important}
+  .app::before,.wrap,.totals,#sheetWrap,.panel{display:none!important}
+  #printArea{display:block;font-family:Barlow,system-ui,sans-serif;color:#000}
+  #printArea h1{font-size:20px;margin:0 0 12px}
+  .pgame{break-inside:avoid;page-break-inside:avoid;margin-bottom:22px}
+  .pgame h2{font-size:15px;margin:0 0 6px}
+  .pgame .gt th,.pgame .gt td{border-bottom:1px solid #999;color:#000}
+  .pgame p{margin:4px 0 0;font-size:13px}
+}
+
+:host{display:block;padding-top:0!important}
+.app{min-height:100vh;min-height:100dvh}
+
+.cell{position:relative}
+.cell .sc{font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:24px;line-height:1}
+.cell small{margin-top:3px}
+.cell.made small{color:var(--felt);font-weight:600}
+.cell.miss small{color:var(--pip);font-weight:600}
+.cell.bidonly{background:var(--now);box-shadow:none}
+.cell.bidonly small{margin:0 0 2px}
+.cell .dl{position:absolute;top:4px;right:6px;font:700 10px/1 Barlow,sans-serif;color:var(--muted)}
+.rtile{display:flex;flex-direction:column;align-items:center;justify-content:center;width:44px;margin:0 auto;min-height:58px;height:100%;background:var(--tile);color:var(--tile-ink);border-radius:7px;box-shadow:inset 0 0 0 1.5px rgba(20,48,42,.35)}
+.rtile b{font:700 22px/1 "Barlow Condensed",sans-serif}
+.rtile span{font-size:10px;font-weight:500;margin-top:2px}
+.row.now .rtile{box-shadow:inset 0 0 0 2px var(--pip)}
+.row.now .rtile b{color:var(--pip)}
+.names.many input{font-size:14px}
+.totals.many .tot b{font-size:22px}
+.totals.many .tot span{font-size:11px}
+.phase{display:flex;justify-content:flex-start;margin:10px 0 4px}
+.phase button:disabled{opacity:.4;cursor:default}
+.step{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.step .who{font-weight:600;font-size:16px;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.step .who small{display:block;font-weight:500;font-size:12px;color:var(--muted)}
+.step .ctl{display:flex;align-items:center;gap:6px}
+.step .ctl button{width:44px;height:44px;border:none;border-radius:10px;background:var(--tile);color:var(--tile-ink);box-shadow:inset 0 0 0 1.5px rgba(20,48,42,.3),0 2px 0 rgba(20,48,42,.15);font:700 24px/1 "Barlow Condensed",sans-serif;cursor:pointer}
+.step .ctl output{min-width:40px;text-align:center;font:700 30px/1 "Barlow Condensed",sans-serif}
+.step.bad output,.step.bad .who small{color:var(--pip)}
+.ohsum{font-size:14px;color:var(--muted);margin:10px 0 0;min-height:20px}
+.ohsum.bad{color:var(--pip);font-weight:600}
+.save:disabled{opacity:.45;cursor:default}
+.tscroll{overflow-x:auto}
+.gt td small{font-family:Barlow,sans-serif;font-size:11px;color:var(--muted)}
+.gkey{font-size:12px;color:var(--muted);margin:-4px 0 10px}
+.typed .sign{flex:none;border:1px solid var(--line);background:transparent;border-radius:10px;padding:8px 14px;font:700 18px/1 "Barlow Condensed",sans-serif;color:var(--ink);cursor:pointer}
+.half .rk{display:block;line-height:1}
+.half.joker{font-size:15px}
+.half small.neg{color:var(--pip);opacity:1}
+.cell.neg{color:var(--felt)}
+.newhand{display:block;width:100%;margin:2px 0 8px;border:none;border-radius:12px;padding:14px;font:600 16px Barlow,sans-serif;background:var(--felt);color:var(--felt-ink);cursor:pointer}
+.newhand[hidden]{display:none}
+.lbl2{margin:10px 0 6px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:8px 12px;font:600 14px Barlow,sans-serif;cursor:pointer}
+.chips button[aria-checked="true"]{background:var(--felt);border-color:var(--felt);color:#fff}
+.chips button:disabled{opacity:.4;cursor:default}
+.chips button small{font-weight:500;margin-left:4px;opacity:.85}
+.rummybox{display:flex;align-items:center;gap:8px;margin:10px 0 0;font-size:14px}
+.rummybox input{width:20px;height:20px;accent-color:var(--felt)}
+.half .rk{display:block;line-height:1}
+.cell.won{color:var(--felt)}
+.cell small{margin-top:3px}
+.save:disabled{opacity:.45;cursor:default}
+</style><div class="app">
+<div class="wrap">
+  <header>
+    <h1>Rummy</h1>
+    <div class="gmenu">
+      <button class="ghost" id="gameMenuBtn" type="button" aria-haspopup="true" aria-expanded="false">Game ▾</button>
+      <div class="gmenu-list" id="gameMenu" hidden>
+        <button type="button" id="newGame">New game<small>Pick players and rules, then start</small></button>
+        <button type="button" id="houseRules">House rules<small>See or change this game’s rules</small></button>
+        <button type="button" id="endGame">End game now<small>The current leader wins</small></button>
+        <button type="button" id="clearGame" class="danger">Clear game<small>Erase it without saving to History</small></button>
+      </div>
+    </div>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="View">
+    <button class="tab" type="button" role="tab" id="t-rules" aria-controls="v-rules" aria-selected="true">Rules</button>
+    <button class="tab" type="button" role="tab" id="t-score" aria-controls="v-score" aria-selected="false">Score</button>
+    <button class="tab" type="button" role="tab" id="t-history" aria-controls="v-history" aria-selected="false">History</button>
+  </div>
+
+  <div id="v-rules" class="rules-view" role="tabpanel" aria-labelledby="t-rules">
+    <p class="rsum" id="r-sum"></p>
+    <section>
+      <h2>Setup</h2>
+      <ul id="r-setup"></ul>
+    </section>
+    <section>
+      <h2>Your turn</h2>
+      <ol id="r-turn"></ol>
+    </section>
+    <section>
+      <h2>Going out</h2>
+      <ul id="r-end"></ul>
+    </section>
+    <section>
+      <h2>Scoring</h2>
+      <table><tbody id="r-scoretable"></tbody></table>
+      <p class="note" id="r-scorenote"></p>
+    </section>
+    <p class="rfoot">House rules vary — agree before the first deal.</p>
+  </div>
+
+  <div id="v-score" role="tabpanel" aria-labelledby="t-score" hidden>
+    <div class="grid names" id="names"></div>
+    <div id="rows"></div>
+    <button class="newhand" type="button" id="newHand">+ Score a hand</button>
+    <div class="done" id="done"><div id="doneText"></div></div>
+  </div>
+
+  <div id="v-history" role="tabpanel" aria-labelledby="t-history" hidden>
+    <div class="hactions">
+      <button class="btn" type="button" id="printAll">Print all</button>
+      <button class="btn alt" type="button" id="downloadCsv">Download CSV</button>
+    </div>
+    <div id="historyList"></div>
+  </div>
+</div>
+
+<div class="totals" id="totalsBar" aria-live="polite" hidden>
+  <div class="grid" id="totals"></div>
+</div>
+
+<div id="sheetWrap">
+  <div class="scrim" id="scrim"></div>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-head">
+      <h2 id="sheetTitle">Hand 1</h2>
+      <span class="sub" id="sheetSub"></span>
+    </div>
+    <p class="lbl2">Who went out?</p>
+    <div class="chips" id="outChips" role="radiogroup" aria-label="Who went out"></div>
+    <label class="rummybox" id="rummyBox"><input type="checkbox" id="rummyChk"> Went out all at once (rummy): points doubled</label>
+    <p class="lbl2" id="leftLbl">Cards left in hand</p>
+    <div class="chips" id="leftChips" role="radiogroup" aria-label="Whose cards you’re counting"></div>
+    <div class="readout">
+      <b class="num" id="readout">0</b>
+      <div class="trail" id="trail"></div>
+    </div>
+    <div class="pad" id="pad"></div>
+    <div class="tools">
+      <button type="button" id="undo">Undo</button>
+      <button type="button" id="reset">Clear</button>
+    </div>
+    <label class="typed">Or type it
+      <input type="number" inputmode="numeric" min="0" id="typed" placeholder="Total">
+    </label>
+    <p class="ohsum" id="handSum" role="status"></p>
+    <div class="actions">
+      <button class="cancel" type="button" id="cancel">Cancel</button>
+      <button class="save" type="button" id="save">Save hand</button>
+    </div>
+    <button class="clearscore" type="button" id="erase">Delete this hand</button>
+  </div>
+</div>
+
+<div id="printArea"></div>
+</div></template>
+
+<template id="tpl-spades"><style>
+:host{
+  --bg:#E4ECE7; --surface:#FFFFFF; --ink:#14302A; --muted:#5B7169; --line:#C9D7D0;
+  --felt:#1F6B52; --felt-ink:#FFFFFF; --tile:#FBFAF6; --tile-ink:#14302A; --pip:#B3261E;
+  --gold:#E0A526; --gold-soft:#FBEFCF; --now:#D7EBE1;
+  --shadow:0 1px 0 rgba(20,48,42,.12), 0 2px 6px rgba(20,48,42,.08);
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :host{
+    --bg:#0E211B; --surface:#16302A; --ink:#E7F0EB; --muted:#93AAA1; --line:#284840;
+    --felt:#2E8F6E; --felt-ink:#FFFFFF; --tile:#EDEBE3; --tile-ink:#14302A; --pip:#B3261E;
+    --gold:#E9B444; --gold-soft:#3A3318; --now:#1D3D34;
+    --shadow:0 1px 0 rgba(0,0,0,.4);
+    color-scheme:dark;
+  }
+}
+:host([data-theme="dark"]){
+  --bg:#0E211B; --surface:#16302A; --ink:#E7F0EB; --muted:#93AAA1; --line:#284840;
+  --felt:#2E8F6E; --felt-ink:#FFFFFF; --tile:#EDEBE3; --tile-ink:#14302A; --pip:#B3261E;
+  --gold:#E9B444; --gold-soft:#3A3318; --now:#1D3D34;
+  --shadow:0 1px 0 rgba(0,0,0,.4);
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+.app{margin:0;background:var(--bg);color:var(--ink);font-family:Barlow,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.4;-webkit-tap-highlight-color:transparent}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.num{font-family:"Barlow Condensed",Barlow,system-ui,sans-serif;font-variant-numeric:tabular-nums}
+
+.wrap{max-width:560px;margin:0 auto;padding:8px 14px 140px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:2px}
+h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20px;line-height:1;margin:0;letter-spacing:.2px}
+.ghost{background:none;border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-weight:500;font-size:12px;color:var(--muted)}
+
+.grid{display:grid;grid-template-columns:64px repeat(3,1fr);gap:6px;align-items:stretch}
+.names input{width:100%;min-width:0;border:none;border-bottom:2px solid var(--line);background:transparent;padding:6px 2px;font-weight:600;font-size:17px;text-align:center;border-radius:0}
+.names input:focus{outline:none;border-bottom-color:var(--felt)}
+.names{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5;padding:6px 0 8px}
+.app::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+
+/* Round tile: a double domino */
+.tile{display:flex;flex-direction:column;align-items:center;justify-content:center;width:40px;margin:0 auto;background:var(--tile);color:var(--tile-ink);border-radius:7px;box-shadow:inset 0 0 0 1.5px rgba(20,48,42,.35);height:100%;min-height:58px}
+.tile span{flex:1;display:flex;align-items:center;justify-content:center;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:18px;line-height:1;width:100%}
+.tile i{display:block;width:70%;height:1.5px;background:rgba(20,48,42,.35)}
+.row.now .tile{box-shadow:inset 0 0 0 2px var(--pip)}
+.row.now .tile span{color:var(--pip)}
+
+.cell{width:100%;min-height:58px;border:none;border-radius:10px;background:var(--surface);box-shadow:var(--shadow);font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:26px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.cell small{font-family:Barlow,sans-serif;font-size:11px;font-weight:500;color:var(--muted);margin-top:3px}
+.cell.empty{color:var(--muted);font-size:15px;font-weight:500;font-family:Barlow,sans-serif;background:transparent;box-shadow:inset 0 0 0 1.5px var(--line)}
+.row.now .cell.empty{background:var(--now);box-shadow:none;color:var(--ink)}
+.cell.zero{color:var(--felt)}
+.row{margin-bottom:6px}
+
+/* Totals */
+.totals{position:fixed;left:0;right:0;bottom:0;background:var(--felt);color:var(--felt-ink);padding:10px 14px calc(12px + env(safe-area-inset-bottom,0px));z-index:20}
+.totals .grid{max-width:532px;margin:0 auto}
+.totals .lbl{font-size:13px;font-weight:500;align-self:center;text-align:center;opacity:.85;line-height:1.15}
+.tot{text-align:center;border-radius:10px;padding:6px 2px}
+.tot b{display:block;font-family:"Barlow Condensed",sans-serif;font-size:32px;font-weight:700;line-height:1}
+.tot span{display:block;font-size:12px;opacity:.85;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tot.lead{background:var(--gold);color:#2A1E00}
+.tot.lead span{opacity:1}
+
+/* Sheet */
+.scrim{position:fixed;inset:0;background:rgba(6,20,16,.5);z-index:30;display:none}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:31;background:var(--surface);border-radius:18px 18px 0 0;padding:10px 14px calc(12px + env(safe-area-inset-bottom,0px));max-width:560px;margin:0 auto;transform:translateY(105%);transition:transform .22s ease;max-height:92vh;overflow:auto}
+.open .scrim{display:block}
+.open .sheet{transform:none}
+@media (prefers-reduced-motion: reduce){.sheet{transition:none}}
+.sheet-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.sheet h2{margin:0;font-size:15px;font-weight:600}
+.sheet .sub{color:var(--muted);font-size:13px}
+.readout{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:4px 0 2px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.readout b{font-family:"Barlow Condensed",sans-serif;font-size:40px;font-weight:700;line-height:.9}
+.trail{color:var(--muted);font-size:14px;text-align:right;flex:1;min-height:20px;overflow-wrap:anywhere}
+.hint{font-size:13px;color:var(--muted);margin:0}
+.view{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:6px 0 8px}
+.seg{display:inline-flex;flex-shrink:0;border:1px solid var(--line);border-radius:999px;padding:2px}
+.seg button{border:none;background:none;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:500;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--felt);color:var(--felt-ink)}
+.pad{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.half{aspect-ratio:1/1;border:none;border-radius:10px;background:var(--tile);color:var(--tile-ink);box-shadow:inset 0 0 0 1.5px rgba(20,48,42,.3),0 2px 0 rgba(20,48,42,.18);font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:26px}
+.half:active{transform:translateY(1px);box-shadow:inset 0 0 0 1.5px rgba(20,48,42,.3)}
+.half.blank{font-size:15px;font-weight:600}
+.half small{display:block;font-family:Barlow,sans-serif;font-size:11px;font-weight:500;opacity:.7;margin-top:2px}
+.half{position:relative}
+.half svg{display:block;width:88%;height:88%;margin:auto;transform:translate(4%,6%)}
+.half .corner{position:absolute;top:3px;left:5px;font-family:"Barlow Condensed",sans-serif;font-size:16px;font-weight:700;line-height:1;opacity:.75}
+.half svg circle{fill:var(--tile-ink)}
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.tools button{border:1px solid var(--line);background:transparent;border-radius:10px;padding:10px 6px;font-weight:500;font-size:15px}
+.typed{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:14px;color:var(--muted)}
+.typed input{flex:1;min-width:0;border:1px solid var(--line);background:transparent;border-radius:10px;padding:9px 12px;font-size:17px;color:var(--ink)}
+.actions{display:grid;grid-template-columns:1fr 2fr;gap:8px;margin-top:14px}
+.actions button{border:none;border-radius:12px;padding:14px;font-weight:600;font-size:16px}
+.cancel{background:transparent;box-shadow:inset 0 0 0 1px var(--line)}
+.save{background:var(--felt);color:var(--felt-ink)}
+.out{display:block;width:100%;margin-top:8px;border:none;border-radius:12px;padding:12px;font-weight:600;background:var(--now);color:var(--ink)}
+.clearscore{display:block;margin:10px auto 0;background:none;border:none;color:var(--pip);font-size:14px;font-weight:500;padding:6px}
+
+.done{margin:14px 0 0;padding:14px;border-radius:12px;background:var(--gold-soft);text-align:center;font-weight:600;display:none}
+
+.hbtns{display:flex;gap:6px}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);background:var(--line);border-radius:999px;padding:3px;margin:4px 0 10px}
+.tab{border:none;background:transparent;border-radius:999px;padding:7px 6px;font-weight:600;font-size:14px;color:var(--ink)}
+.tab[aria-selected="true"]{background:var(--felt);color:var(--felt-ink)}
+.gmenu{position:relative}
+.gmenu-list{position:absolute;right:0;top:calc(100% + 6px);z-index:30;background:var(--surface);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.22),0 0 0 1px var(--line);min-width:240px;padding:4px;display:flex;flex-direction:column}
+.gmenu-list[hidden]{display:none}
+.gmenu-list button{appearance:none;border:none;background:none;text-align:left;padding:10px 12px;border-radius:8px;font:600 15px Barlow,system-ui,sans-serif;color:var(--ink);cursor:pointer}
+.gmenu-list button small{display:block;font-weight:400;font-size:12px;color:var(--muted);margin-top:2px}
+.gmenu-list button:hover:not(:disabled){background:var(--now)}
+.gmenu-list button:disabled{opacity:.4;cursor:default}
+.gmenu-list button:focus-visible{outline:3px solid var(--gold);outline-offset:-3px}
+.gmenu-list .danger{color:var(--pip)}
+
+[hidden]{display:none!important}
+.rules-view section{background:var(--surface);border-radius:12px;box-shadow:var(--shadow);padding:12px 14px;margin-bottom:8px}
+.rules-view h2{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:21px;margin:0 0 6px;display:flex;align-items:center;gap:8px}
+.rules-view h2::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--pip);flex-shrink:0}
+.rules-view ul,.rules-view ol{margin:0;padding-left:1.15rem}
+.rules-view li{margin:.3rem 0}
+.rules-view li::marker{color:var(--muted)}
+.rules-view .note{color:var(--muted);font-size:14px;margin:.5rem 0 0}
+.rules-view table{width:100%;border-collapse:collapse}
+.rules-view td{padding:6px 0;border-bottom:1px solid var(--line)}
+.rules-view tr:last-child td{border-bottom:0}
+.rules-view td:last-child{text-align:right;font-weight:700;font-family:"Barlow Condensed",sans-serif;font-size:18px;white-space:nowrap}
+.rfoot{text-align:center;color:var(--muted);font-size:13px;margin:10px 0}
+.rsum{font-size:14px;color:var(--muted);background:var(--surface);border-radius:12px;box-shadow:var(--shadow);padding:10px 14px;margin:0 0 8px}
+.rsum b{color:var(--ink)}
+.grules{font-size:13px;color:var(--muted);margin:2px 0 6px}
+.hactions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.btn{border:none;border-radius:10px;padding:11px 8px;font-weight:600;font-size:15px;background:var(--felt);color:var(--felt-ink)}
+.btn.alt{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
+.btn.warn{background:transparent;color:var(--pip);box-shadow:inset 0 0 0 1px var(--line)}
+.empty-h{color:var(--muted);text-align:center;padding:30px 10px}
+.game{background:var(--surface);border-radius:12px;box-shadow:var(--shadow);margin-bottom:8px;overflow:hidden}
+.game summary{list-style:none;padding:10px 12px;cursor:pointer}
+.game summary::-webkit-details-marker{display:none}
+.gmeta{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--muted);margin-bottom:6px}
+.tag{font-size:12px;font-weight:600;color:var(--pip)}
+.gtots{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.gtots div{text-align:center;border-radius:8px;padding:4px 2px}
+.gtots b{display:block;font-family:"Barlow Condensed",sans-serif;font-size:24px;line-height:1.05}
+.gtots span{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gtots .win{background:var(--gold-soft)}
+.gbody{padding:0 12px 12px}
+.gt{width:100%;border-collapse:collapse;font-size:14px;margin:4px 0 10px}
+.gt th,.gt td{padding:5px 4px;text-align:center;border-bottom:1px solid var(--line)}
+.gt th{font-weight:600;font-size:13px;color:var(--muted)}
+.gt td{font-family:"Barlow Condensed",sans-serif;font-size:17px}
+.gt tfoot td{font-weight:700;border-bottom:none;font-size:19px}
+.gactions{display:grid;grid-template-columns:2fr 1fr;gap:8px}
+.done button{margin-top:8px}
+#printArea{display:none}
+@media print{
+  .app{background:#fff!important;color:#000!important}
+  .app::before,.wrap,.totals,#sheetWrap,.panel{display:none!important}
+  #printArea{display:block;font-family:Barlow,system-ui,sans-serif;color:#000}
+  #printArea h1{font-size:20px;margin:0 0 12px}
+  .pgame{break-inside:avoid;page-break-inside:avoid;margin-bottom:22px}
+  .pgame h2{font-size:15px;margin:0 0 6px}
+  .pgame .gt th,.pgame .gt td{border-bottom:1px solid #999;color:#000}
+  .pgame p{margin:4px 0 0;font-size:13px}
+}
+
+:host{display:block;padding-top:0!important}
+.app{min-height:100vh;min-height:100dvh}
+
+.cell{position:relative}
+.cell .sc{font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:24px;line-height:1}
+.cell small{margin-top:3px}
+.cell.made small{color:var(--felt);font-weight:600}
+.cell.miss small{color:var(--pip);font-weight:600}
+.cell.bidonly{background:var(--now);box-shadow:none}
+.cell.bidonly small{margin:0 0 2px}
+.cell .dl{position:absolute;top:4px;right:6px;font:700 10px/1 Barlow,sans-serif;color:var(--muted)}
+.rtile{display:flex;flex-direction:column;align-items:center;justify-content:center;width:44px;margin:0 auto;min-height:58px;height:100%;background:var(--tile);color:var(--tile-ink);border-radius:7px;box-shadow:inset 0 0 0 1.5px rgba(20,48,42,.35)}
+.rtile b{font:700 22px/1 "Barlow Condensed",sans-serif}
+.rtile span{font-size:10px;font-weight:500;margin-top:2px}
+.row.now .rtile{box-shadow:inset 0 0 0 2px var(--pip)}
+.row.now .rtile b{color:var(--pip)}
+.names.many input{font-size:14px}
+.totals.many .tot b{font-size:22px}
+.totals.many .tot span{font-size:11px}
+.phase{display:flex;justify-content:flex-start;margin:10px 0 4px}
+.phase button:disabled{opacity:.4;cursor:default}
+.step{display:grid;grid-template-columns:1fr auto;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.step .who{font-weight:600;font-size:16px;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.step .who small{display:block;font-weight:500;font-size:12px;color:var(--muted)}
+.step .ctl{display:flex;align-items:center;gap:6px}
+.step .ctl button{width:44px;height:44px;border:none;border-radius:10px;background:var(--tile);color:var(--tile-ink);box-shadow:inset 0 0 0 1.5px rgba(20,48,42,.3),0 2px 0 rgba(20,48,42,.15);font:700 24px/1 "Barlow Condensed",sans-serif;cursor:pointer}
+.step .ctl output{min-width:40px;text-align:center;font:700 30px/1 "Barlow Condensed",sans-serif}
+.step.bad output,.step.bad .who small{color:var(--pip)}
+.ohsum{font-size:14px;color:var(--muted);margin:10px 0 0;min-height:20px}
+.ohsum.bad{color:var(--pip);font-weight:600}
+.save:disabled{opacity:.45;cursor:default}
+.tscroll{overflow-x:auto}
+.gt td small{font-family:Barlow,sans-serif;font-size:11px;color:var(--muted)}
+.gkey{font-size:12px;color:var(--muted);margin:-4px 0 10px}
+.newhand{display:block;width:100%;margin:2px 0 8px;border:none;border-radius:12px;padding:14px;font:600 16px Barlow,sans-serif;background:var(--felt);color:var(--felt-ink);cursor:pointer}
+.newhand[hidden]{display:none}
+.lbl2{margin:10px 0 6px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{border:1px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:8px 12px;font:600 14px Barlow,sans-serif;cursor:pointer}
+.chips button[aria-checked="true"]{background:var(--felt);border-color:var(--felt);color:#fff}
+.chips button:disabled{opacity:.4;cursor:default}
+.chips button small{font-weight:500;margin-left:4px;opacity:.85}
+.rummybox{display:flex;align-items:center;gap:8px;margin:10px 0 0;font-size:14px}
+.rummybox input{width:20px;height:20px;accent-color:var(--felt)}
+.half .rk{display:block;line-height:1}
+.cell.won{color:var(--felt)}
+.cell small{margin-top:3px}
+.save:disabled{opacity:.45;cursor:default}
+.step .ctl .blind{width:auto;padding:0 10px;font:600 13px/1 Barlow,sans-serif}
+.step .ctl .blind[aria-pressed="true"]{background:var(--felt);color:#fff;box-shadow:none}
+.step .ctl output.nil{font-size:20px}
+.cell .bags{color:var(--muted)}
+.tot span small{display:block;font-size:11px;opacity:.85}
+.teamname{text-align:center;font-weight:600;font-size:15px;padding:6px 2px;border-bottom:2px solid var(--line);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+</style><div class="app">
+<div class="wrap">
+  <header>
+    <h1>Spades</h1>
+    <div class="gmenu">
+      <button class="ghost" id="gameMenuBtn" type="button" aria-haspopup="true" aria-expanded="false">Game ▾</button>
+      <div class="gmenu-list" id="gameMenu" hidden>
+        <button type="button" id="newGame">New game<small>Pick players and rules, then start</small></button>
+        <button type="button" id="houseRules">House rules<small>See or change this game’s rules</small></button>
+        <button type="button" id="endGame">End game now<small>The current leader wins</small></button>
+        <button type="button" id="clearGame" class="danger">Clear game<small>Erase it without saving to History</small></button>
+      </div>
+    </div>
+  </header>
+
+  <div class="tabs" role="tablist" aria-label="View">
+    <button class="tab" type="button" role="tab" id="t-rules" aria-controls="v-rules" aria-selected="true">Rules</button>
+    <button class="tab" type="button" role="tab" id="t-score" aria-controls="v-score" aria-selected="false">Score</button>
+    <button class="tab" type="button" role="tab" id="t-history" aria-controls="v-history" aria-selected="false">History</button>
+  </div>
+
+  <div id="v-rules" class="rules-view" role="tabpanel" aria-labelledby="t-rules">
+    <p class="rsum" id="r-sum"></p>
+    <section>
+      <h2>Setup</h2>
+      <ul id="r-setup"></ul>
+    </section>
+    <section>
+      <h2>Bidding</h2>
+      <ul id="r-bid"></ul>
+    </section>
+    <section>
+      <h2>Playing tricks</h2>
+      <ul>
+        <li>The player left of the dealer leads first. Spades can’t be led until a spade has been played on another suit (spades are “broken”), unless you hold nothing but spades.</li>
+        <li>Follow the suit that was led if you can. If you can’t, play any card, including a spade.</li>
+        <li>The highest spade wins the trick. With no spade played, the highest card of the suit led wins.</li>
+        <li>Whoever wins a trick leads the next one.</li>
+      </ul>
+    </section>
+    <section>
+      <h2>Scoring</h2>
+      <table><tbody id="r-scoretable"></tbody></table>
+      <p class="note" id="r-scorenote"></p>
+    </section>
+    <p class="rfoot">House rules vary — agree before the first deal.</p>
+  </div>
+
+  <div id="v-score" role="tabpanel" aria-labelledby="t-score" hidden>
+    <div class="grid names" id="names"></div>
+    <div id="rows"></div>
+    <button class="newhand" type="button" id="newHand">+ Score a hand</button>
+    <div class="done" id="done"><div id="doneText"></div></div>
+  </div>
+
+  <div id="v-history" role="tabpanel" aria-labelledby="t-history" hidden>
+    <div class="hactions">
+      <button class="btn" type="button" id="printAll">Print all</button>
+      <button class="btn alt" type="button" id="downloadCsv">Download CSV</button>
+    </div>
+    <div id="historyList"></div>
+  </div>
+</div>
+
+<div class="totals" id="totalsBar" aria-live="polite" hidden>
+  <div class="grid" id="totals"></div>
+</div>
+
+<div id="sheetWrap">
+  <div class="scrim" id="scrim"></div>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-head">
+      <h2 id="sheetTitle">Round</h2>
+      <span class="sub" id="sheetSub"></span>
+    </div>
+    <div class="phase">
+      <div class="seg" role="group" aria-label="Entering">
+        <button type="button" id="phBids" aria-pressed="true">Bids</button>
+        <button type="button" id="phTricks" aria-pressed="false">Tricks</button>
+      </div>
+    </div>
+    <div id="steppers"></div>
+    <p class="ohsum" id="ohSum" role="status"></p>
+    <div class="actions">
+      <button class="cancel" type="button" id="cancel">Cancel</button>
+      <button class="save" type="button" id="save">Save bids</button>
+    </div>
+    <button class="clearscore" type="button" id="clearRound">Delete this hand</button>
+  </div>
+</div>
+
+<div id="printArea"></div>
+</div></template>
+
 <script>
 (function(){
+  // ===== In-app confirm (browser confirm() is blocked inside artifacts) =====
+  function ASK(msg, onYes){
+    var w = document.getElementById('askWrap'), yes = document.getElementById('askYes');
+    var act = document.activeElement;
+    while(act && act.shadowRoot && act.shadowRoot.activeElement) act = act.shadowRoot.activeElement;
+    var label = /^Delete/.test(msg) ? 'Delete' : (/^Clear/.test(msg) ? 'Clear' : (/End the game/.test(msg) ? 'End game' : 'OK'));
+    document.getElementById('askMsg').textContent = msg;
+    yes.textContent = label;
+    yes.classList.toggle('danger', label==='Delete' || label==='Clear');
+    w.hidden = false;
+    setTimeout(function(){ yes.focus(); }, 30);
+    function done(ok){
+      w.hidden = true;
+      yes.onclick = null; document.getElementById('askNo').onclick = null; w.querySelector('.ask-scrim').onclick = null;
+      window.removeEventListener('keydown', onKey, true);
+      if(act){ try{ act.focus(); }catch(e){} }
+      if(ok) onYes();
+    }
+    function onKey(e){ if(e.key==='Escape'){ e.stopImmediatePropagation(); e.preventDefault(); done(false); } }
+    window.addEventListener('keydown', onKey, true);
+    yes.onclick = function(){ done(true); };
+    document.getElementById('askNo').onclick = function(){ done(false); };
+    w.querySelector('.ask-scrim').onclick = function(){ done(false); };
+  }
+
   // ===== Shared game setup sheet =====
   var SETUP_CSS = [
     '.su-wrap{position:fixed;inset:0;z-index:60;display:none}',
@@ -1280,7 +1988,12 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
     '.su-count button{width:32px;height:32px;border-radius:8px;border:1px solid var(--su-line);background:none;color:var(--su-ink);font-size:18px;cursor:pointer}',
     '.su-count button:disabled{opacity:.35;cursor:default}',
     '.su-count b{font:700 18px "Barlow Condensed",sans-serif;color:var(--su-ink);min-width:14px;text-align:center}',
-    '.su-names{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px}',
+    '.su-names{display:flex;flex-direction:column;gap:6px}',
+    '.su-row{display:flex;align-items:center;gap:6px}',
+    '.su-row .su-n{width:18px;flex:none;text-align:center;font-weight:700;color:var(--su-muted)}',
+    '.su-row input{flex:1}',
+    '.su-row button{flex:none;width:38px;height:38px;border-radius:8px;border:1px solid var(--su-line);background:none;color:var(--su-ink);font-size:16px;cursor:pointer}',
+    '.su-row button:disabled{opacity:.3;cursor:default}',
     '.su-names input{font:inherit;font-size:16px;color:var(--su-ink);background:transparent;border:1px solid var(--su-line);border-radius:8px;padding:8px 10px;min-width:0;width:100%;box-sizing:border-box}',
     '.su-presets{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px}',
     '.su-presets button,.su-chips button{border:1px solid var(--su-line);background:transparent;color:var(--su-ink);border-radius:999px;padding:7px 12px;font:600 13px Barlow,system-ui,sans-serif;cursor:pointer}',
@@ -1292,6 +2005,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
     '.su-chips{display:flex;flex-wrap:wrap;gap:6px}',
     '.su-savehouse{margin-top:4px;border:none;background:none;color:var(--su-accent);font:600 14px Barlow,sans-serif;padding:6px 0;cursor:pointer}',
     '.su-savehouse:disabled{color:var(--su-muted);cursor:default}',
+    '.su-first{margin-top:10px}',
     '.su-note{color:var(--su-muted);font-size:14px;margin:4px 0 0}',
     '.su-note:empty{display:none}',
     '.su-actions{display:grid;grid-template-columns:1fr 2fr;gap:8px;margin-top:12px}',
@@ -1315,7 +2029,8 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
         '<p class="su-lock">Rules are set for this game. Start a new game to change them.</p>' +
         '<div class="su-sec su-players"><div class="su-h3"><span>Players</span>' +
           '<span class="su-count"><button type="button" data-c="-1" aria-label="Remove a player">−</button><b></b><button type="button" data-c="1" aria-label="Add a player">+</button></span></div>' +
-          '<div class="su-names"></div></div>' +
+          '<div class="su-names"></div><button type="button" class="su-savehouse su-shuffle">Shuffle the order</button>' +
+          '<div class="su-first" hidden><div class="su-lbl"></div><div class="su-chips" role="radiogroup"></div></div></div>' +
         '<div class="su-sec"><div class="su-h3"><span>House rules</span></div>' +
           '<div class="su-presets"><button type="button" data-p="house">Our house rules</button><button type="button" data-p="official">Official</button></div>' +
           '<div class="su-opts"></div>' +
@@ -1325,7 +2040,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
       '</div>';
     R.appendChild(w);
     var q = function(s){ return w.querySelector(s); };
-    var mode = 'new', names = [], rules = {}, hasScores = false, opener = null;
+    var mode = 'new', names = [], rules = {}, hasScores = false, opener = null, refocus = null, first = 0;
 
     function getHouse(){
       try{ var h = JSON.parse(localStorage.getItem(cfg.houseKey)); if(h) return Object.assign({}, cfg.defaults, h); }catch(e){}
@@ -1335,7 +2050,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
     function same(a, b){ return cfg.schema.every(function(o){ return String(a[o.key])===String(b[o.key]); }); }
     function clean(){ return names.map(function(v,i){ return (v||'').trim() || cfg.defaultName(i); }); }
     function drawNote(){
-      var t = (cfg.note && mode!=='view') ? cfg.note(clean(), rules) : '';
+      var t = (cfg.note && mode!=='view') ? cfg.note(clean(), rules, first) : '';
       if(mode==='new' && hasScores) t = (t ? t+' ' : '') + 'The current game stays in History.';
       q('.su-note').textContent = t;
     }
@@ -1350,17 +2065,36 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
       q('[data-c="1"]').disabled = names.length>=cfg.maxPlayers;
       var nm = q('.su-names'); nm.innerHTML = '';
       names.forEach(function(v,i){
-        var inp = document.createElement('input');
+        var row = document.createElement('div'); row.className = 'su-row';
+        row.innerHTML = '<span class="su-n">'+(i+1)+'</span><input>' +
+          '<button type="button" data-mv="-1" aria-label="Move up">↑</button><button type="button" data-mv="1" aria-label="Move down">↓</button>';
+        var inp = row.querySelector('input');
         inp.value = v; inp.placeholder = cfg.defaultName(i); inp.maxLength = 14;
         inp.setAttribute('aria-label', 'Player '+(i+1)+' name');
-        inp.addEventListener('input', function(){ names[i] = inp.value; drawNote(); });
-        nm.appendChild(inp);
+        inp.addEventListener('input', function(){ names[i] = inp.value; drawFirst(); drawNote(); });
+        row.querySelectorAll('[data-mv]').forEach(function(b){
+          var to = i + (+b.dataset.mv);
+          b.disabled = to<0 || to>=names.length;
+          b.setAttribute('aria-label', (+b.dataset.mv<0 ? 'Move up: ' : 'Move down: ') + ((v||'').trim() || cfg.defaultName(i)));
+          b.addEventListener('click', function(){
+            var t = names[i]; names[i] = names[to]; names[to] = t;
+            if(first===i) first = to; else if(first===to) first = i;
+            refocus = to+':'+b.dataset.mv; draw();
+          });
+        });
+        nm.appendChild(row);
       });
+      if(refocus){
+        var parts = refocus.split(':'), fb = nm.children[+parts[0]] && nm.children[+parts[0]].querySelector('[data-mv="'+parts[1]+'"]');
+        if(fb && !fb.disabled) fb.focus(); else if(nm.children[+parts[0]]) nm.children[+parts[0]].querySelector('input').focus();
+        refocus = null;
+      }
+      drawFirst();
       var house = getHouse(), isHouse = same(rules, house);
       q('[data-p="house"]').setAttribute('aria-pressed', String(isHouse));
       q('[data-p="official"]').setAttribute('aria-pressed', String(same(rules, off())));
       w.querySelectorAll('.su-presets button').forEach(function(b){ b.disabled = view; });
-      var sh = q('.su-savehouse');
+      var sh = q('.su-savehouse:not(.su-shuffle)');
       sh.hidden = view; sh.disabled = isHouse;
       sh.textContent = isHouse ? 'These are your house rules' : 'Save these as our house rules';
       var opts = q('.su-opts'); opts.innerHTML = '';
@@ -1384,27 +2118,53 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
       q('.su-go').textContent = mode==='new' ? 'Start game' : (mode==='edit' ? 'Save' : 'Close');
       drawNote();
     }
+    function drawFirst(){
+      var box = q('.su-first');
+      box.hidden = !cfg.firstLabel;
+      if(!cfg.firstLabel) return;
+      if(first>=names.length) first = 0;
+      box.querySelector('.su-lbl').textContent = cfg.firstLabel;
+      var ch = box.querySelector('.su-chips'); ch.innerHTML = ''; ch.setAttribute('aria-label', cfg.firstLabel);
+      clean().forEach(function(nm, i){
+        var b = document.createElement('button');
+        b.type = 'button'; b.setAttribute('role','radio'); b.textContent = nm;
+        b.setAttribute('aria-checked', String(i===first));
+        b.addEventListener('click', function(){ first = i; drawFirst(); drawNote(); });
+        ch.appendChild(b);
+      });
+    }
     function close(){ w.classList.remove('open'); if(opener){ try{ opener.focus(); }catch(e){} } }
 
     w.querySelectorAll('[data-c]').forEach(function(b){
       b.addEventListener('click', function(){
         if(+b.dataset.c>0 && names.length<cfg.maxPlayers) names.push('');
-        if(+b.dataset.c<0 && names.length>cfg.minPlayers) names.pop();
+        if(+b.dataset.c<0 && names.length>cfg.minPlayers){ names.pop(); if(first>=names.length) first = 0; }
         draw();
       });
     });
     w.querySelectorAll('[data-p]').forEach(function(b){
       b.addEventListener('click', function(){ rules = Object.assign({}, b.dataset.p==='house' ? getHouse() : off()); draw(); });
     });
-    q('.su-savehouse').addEventListener('click', function(){
+    q('.su-shuffle').addEventListener('click', function(){
+      if(names.length<2) return;
+      var old = names.slice(), idx = old.map(function(_,k){ return k; }), tries = 0;
+      do{
+        for(var i=idx.length-1;i>0;i--){ var j = Math.floor(Math.random()*(i+1)); var t = idx[i]; idx[i] = idx[j]; idx[j] = t; }
+      } while(idx.every(function(v,k){ return v===k; }) && ++tries<10);
+      names = idx.map(function(k){ return old[k]; });
+      first = idx.indexOf(first);
+      draw();
+    });
+    q('.su-savehouse:not(.su-shuffle)').addEventListener('click', function(){
       try{ localStorage.setItem(cfg.houseKey, JSON.stringify(rules)); }catch(e){}
       draw();
     });
     q('.su-go').addEventListener('click', function(){
       var m = mode, nm = clean(), rl = Object.assign({}, rules);
       close();
-      if(m==='new') cfg.onStart(nm, rl);
-      else if(m==='edit') cfg.onSave(nm, rl);
+      var f = first;
+      if(m==='new') cfg.onStart(nm, rl, f);
+      else if(m==='edit') cfg.onSave(nm, rl, f);
     });
     q('.su-cancel').addEventListener('click', close);
     q('.su-x').addEventListener('click', close);
@@ -1417,6 +2177,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
         mode = m; names = (o.names||[]).slice();
         rules = Object.assign({}, cfg.defaults, o.rules||{});
         hasScores = !!o.hasScores; opener = R.activeElement;
+        first = o.first && o.first < names.length ? o.first : 0;
         draw(); w.classList.add('open');
         q('.su-sheet').scrollTop = 0;
         setTimeout(function(){ q('.su-go').focus({preventScroll:true}); }, 50);
@@ -1429,7 +2190,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
     root.appendChild(document.getElementById(tplId).content.cloneNode(true));
     return root;
   }
-  var rootMT = mount('host-mt','tpl-mt'), rootHF = mount('host-hf','tpl-hf'), rootOH = mount('host-oh','tpl-oh'), rootGolf = mount('host-golf','tpl-golf');
+  var rootMT = mount('host-mt','tpl-mt'), rootHF = mount('host-hf','tpl-hf'), rootOH = mount('host-oh','tpl-oh'), rootGolf = mount('host-golf','tpl-golf'), rootRummy = mount('host-rummy','tpl-rummy'), rootSpades = mount('host-spades','tpl-spades');
 
   // ===== Mexican Train =====
   try{ (function(R){ 
@@ -1582,7 +2343,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
   var PIP_COLOR = {1:'#2F6FCF', 2:'#8E2F55', 3:'#8E2F55', 4:'#7A7F2A', 5:'#2F6FCF', 6:'#E3B012', 7:'#2E5E2E',
     8:'#B5A126', 9:'#5B2C91', 10:'#EE8A1C', 11:'#1F1F1F', 12:'#5B2C91'};
   function pipSvg(n){
-    var r = n<=6 ? 9 : 7.5;
+    var r = n<=6 ? 12.5 : 9.5;
     return '<svg viewBox="0 0 100 100" aria-hidden="true">' + LAYOUT[n].map(function(p){
       return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+r+'" style="fill:'+PIP_COLOR[n]+'"/>';
     }).join('') + '</svg>';
@@ -1689,16 +2450,18 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
   function endGame(prefix){
     var t = totalsOf(state), w = winnersOf(state);
     var who = w.length>1 ? w.map(function(p){ return state.names[p]; }).join(' and ')+' tie' : state.names[w[0]]+' wins';
-    if(!confirm((prefix||'')+'End the game now? '+who+' with '+fmtN(t[w[0]])+'.')) return;
+    ASK((prefix||'')+'End the game now? '+who+' with '+fmtN(t[w[0]])+'.', function(){
     syncHistory();
     var h = loadHistory(); h.forEach(function(g){ if(g.id===state.id){ g.complete = true; g.endedEarly = true; } }); saveHistory(h);
     setState(fresh(state.names.slice(), state.pips, state.rules)); save(); buildNames(); render(); showView('history');
+  });
   }
   $('endGame').addEventListener('click', function(){ endGame(''); });
   $('clearGame').addEventListener('click', function(){
-    if(!confirm('Clear this game? Its scores won’t be saved to History.')) return;
+    ASK('Clear this game? Its scores won’t be saved to History.', function(){
     saveHistory(loadHistory().filter(function(g){ return g.id!==state.id; }));
     setState(fresh(state.names.slice(), state.pips, state.rules)); save(); buildNames(); render();
+  });
   });
 
   var setup = SETUP(R, {
@@ -1776,11 +2539,12 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
         '<button class="btn warn" type="button" data-delete>Delete</button></div></div>';
       d.querySelector('[data-print]').addEventListener('click', function(){ printGames([g]); });
       d.querySelector('[data-delete]').addEventListener('click', function(){
-        if(!confirm('Delete this game from History?')) return;
+        ASK('Delete this game from History?', function(){
         saveHistory(loadHistory().filter(function(x){ return x.id!==g.id; }));
         if(g.id===state.id){ setState(fresh(state.names.slice(), state.pips, state.rules)); try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} render(); }
         renderHistory();
       });
+  });
       list.appendChild(d);
     });
   }
@@ -1925,7 +2689,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
     sheets.innerHTML='';
     S.rounds.forEach((rd,r)=>{
       const sec=document.createElement('section');
-      let h='<h2><span class="suit'+(r%2===1?' red':'')+'">'+suits[r]+'</span>Round '+(r+1)+'<span class="open">opens at <b>'+minsFor(S.rules)[r]+'</b></span></h2><div class="warn" id="warn'+r+'" role="status" hidden></div><table class="sheet"><tbody>';
+      let h='<h2><span class="suit'+(r%2===1?' red':'')+'">'+suits[r]+'</span>Round '+(r+1)+'<span class="open">opens at <b>'+minsFor(S.rules)[r]+'</b></span></h2><p class="starter" id="st'+r+'"></p><div class="warn" id="warn'+r+'" role="status" hidden></div><table class="sheet"><tbody>';
       rowsFor(S.rules).forEach(row=>{
         if(row.total){
           h+='<tr class="sub"><td>'+row.label+'</td>';
@@ -1990,12 +2754,14 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
       R.getElementById('s'+p).classList.toggle('lead', anyScore && t===max);
     });
     S.rounds.forEach((_,r)=>check(r));
+    const e2=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+    S.rounds.forEach((_,r)=>{ const st=name(((S.first||0)+r)%3), el=R.getElementById('st'+r); if(el) el.innerHTML='<b>“'+minsFor(S.rules)[r]+' to you, '+e2(st)+'.”</b> '+e2(st)+' starts this round.'; });
   }
 
   for(let i=0;i<3;i++){
     R.getElementById('n'+i).addEventListener('input',e=>{ S.names[i]=e.target.value; save(); refresh(); });
   }
-  R.getElementById('reset').addEventListener('click',()=>setup.open('new',{names:[0,1,2].map(name),rules:S.rules,hasScores:hasData(S)}));
+  R.getElementById('reset').addEventListener('click',()=>setup.open('new',{names:[0,1,2].map(name),rules:S.rules,first:S.first||0,hasScores:hasData(S)}));
 
   /* ---- history ---- */
   const HKEY='hf-history-v1';
@@ -2009,7 +2775,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
     const h=loadH(), i=h.findIndex(g=>g.id===S.id);
     if(!hasData(S)){ if(i>-1) h.splice(i,1); }
     else{
-      const g={id:S.id, started:S.started, names:[0,1,2].map(name), rules:S.rules, rounds:JSON.parse(JSON.stringify(S.rounds)), complete:S.rounds.every(rd=>rd.some(c=>c.out))};
+      const g={id:S.id, started:S.started, names:[0,1,2].map(name), first:S.first||0, rules:S.rules, rounds:JSON.parse(JSON.stringify(S.rounds)), complete:S.rounds.every(rd=>rd.some(c=>c.out))};
       if(i>-1) h[i]=g; else h.push(g);
     }
     saveH(h);
@@ -2050,11 +2816,12 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
         '<div class="hbody"><p class="grules">Rules: '+esc(summaryOf(rulesOf(g)))+'</p>'+gameTable(g)+'<div class="hgact"><button class="hbtn" type="button" data-print>Print this game</button><button class="hbtn del" type="button" data-delete>Delete</button></div></div>';
       d.querySelector('[data-print]').addEventListener('click',()=>printGames([g]));
       d.querySelector('[data-delete]').addEventListener('click',()=>{
-        if(!confirm('Delete this game from History?')) return;
+        ASK('Delete this game from History?', function(){
         saveH(loadH().filter(x=>x.id!==g.id));
-        if(g.id===S.id){ const names=S.names; S=blank(S.rules); S.names=names; try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){} build(); }
+        if(g.id===S.id){ const names=S.names, f1=S.first||0; S=blank(S.rules); S.names=names; S.first=f1; try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){} build(); }
         renderHistory();
       });
+  });
       list.appendChild(d);
     });
   }
@@ -2100,15 +2867,17 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
   R.getElementById('endGame').addEventListener('click',()=>{
     const t=totalsOf(S), w=winnersOf(S);
     const who=w.length>1 ? w.map(name).join(' and ')+' tie' : name(w[0])+' wins';
-    if(!confirm('End the game now? '+who+' with '+fmt(t[w[0]])+'.')) return;
+    ASK('End the game now? '+who+' with '+fmt(t[w[0]])+'.', function(){
     syncHistory();
     const h=loadH(); h.forEach(g=>{ if(g.id===S.id){ g.complete=true; g.endedEarly=true; } }); saveH(h);
-    const names=S.names; S=blank(S.rules); S.names=names; save(); build(); show('history');
+    const names=S.names, f1=S.first||0; S=blank(S.rules); S.names=names; S.first=f1; save(); build(); show('history');
+  });
   });
   R.getElementById('clearGame').addEventListener('click',()=>{
-    if(!confirm('Clear this game? Its scores won’t be saved to History.')) return;
+    ASK('Clear this game? Its scores won’t be saved to History.', function(){
     saveH(loadH().filter(g=>g.id!==S.id));
-    const names=S.names; S=blank(S.rules); S.names=names; save(); build();
+    const names=S.names, f1=S.first||0; S=blank(S.rules); S.names=names; S.first=f1; save(); build();
+  });
   });
 
   const summaryOf=rl=>['7s bonus '+(+rl.sevens?'+'+fmt(+rl.sevens):'off'),'Beezer '+(+rl.beezer?'+'+fmt(+rl.beezer):'off'),'Going out +'+fmt(+rl.out),'3s −'+fmt(+rl.threes),rl.rounds+' rounds'].join(' · ');
@@ -2131,6 +2900,8 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
   }
   const setup=SETUP(R,{
     houseKey:'hf-house', defaults:HF_DEFAULTS, official:HF_OFFICIAL, minPlayers:3, maxPlayers:3,
+    firstLabel:'Who starts round 1',
+    note:(nm,rl,f)=>{ f=f||0; const st=minsFor(rl).map((_,r)=>nm[(f+r)%3]+(r? ' round '+(r+1) : ' starts round 1')); return 'Players are listed in seating order, going left. '+st.slice(0,-1).join(', ')+' and '+st[st.length-1]+'.'; },
     vars:'--su-bg:var(--card);--su-ink:var(--ink);--su-muted:var(--muted);--su-line:var(--rule);--su-accent:var(--accent);--su-chip:var(--chip)',
     defaultName:i=>'Player '+(i+1),
     schema:[
@@ -2140,10 +2911,10 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
       {key:'threes',label:'3s left in hand or foot',choices:[['100','−100'],['300','−300'],['500','−500']]},
       {key:'rounds',label:'Rounds and opening melds',choices:[['3','3: 50 · 100 · 150'],['4','4: 50 · 90 · 120 · 150']]}
     ],
-    onStart:(names,rl)=>{ S=blank(rl); S.names=names; save(); build(); renderRules(); show('score'); },
-    onSave:(names,rl)=>{ const id=S.id, st=S.started; S=blank(rl); S.id=id; S.started=st; S.names=names; save(); build(); renderRules(); }
+    onStart:(names,rl,f)=>{ S=blank(rl); S.names=names; S.first=f||0; save(); build(); renderRules(); show('score'); },
+    onSave:(names,rl,f)=>{ const id=S.id, st=S.started; S=blank(rl); S.id=id; S.started=st; S.names=names; S.first=f||0; save(); build(); renderRules(); }
   });
-  R.getElementById('houseRules').addEventListener('click',()=>setup.open(hasData(S)?'view':'edit',{names:[0,1,2].map(name),rules:S.rules}));
+  R.getElementById('houseRules').addEventListener('click',()=>setup.open(hasData(S)?'view':'edit',{names:[0,1,2].map(name),rules:S.rules,first:S.first||0}));
 
   /* ---- init ---- */
   build();
@@ -2221,7 +2992,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
     h.forEach(function(g,k){ if(g.id===S.id) i = k; });
     if(!hasData(S)){ if(i>-1) h.splice(i,1); }
     else {
-      var g = { id:S.id, started:S.started, names:S.names.slice(), rules:S.rules, rounds:JSON.parse(JSON.stringify(S.rounds)), complete:isComplete(S) };
+      var g = { id:S.id, started:S.started, names:S.names.slice(), first:S.first||0, rules:S.rules, rounds:JSON.parse(JSON.stringify(S.rounds)), complete:isComplete(S) };
       if(i>-1) h[i] = g; else h.push(g);
     }
     saveH(h);
@@ -2234,7 +3005,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
     var d = new Date(iso);
     return d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric',year:'numeric'}) + ', ' + d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
   }
-  function dealerOf(r, n){ return r % n; }
+  function dealerOf(r, n){ return ((S.first||0) + r) % n; }
   function curRound(){ for(var r=0;r<S.rounds.length;r++){ if(!roundDone(S.rounds[r])) return r; } return -1; }
   function cols(n){ return '52px repeat('+n+',minmax(0,1fr))'; }
 
@@ -2399,10 +3170,11 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
     save(); closeSheet(); render();
   });
   $('clearRound').addEventListener('click', function(){
-    if(!ed || !confirm('Clear this round’s bids and tricks?')) return;
+    if(!ed) return; ASK('Clear this round’s bids and tricks?', function(){
     var rd = S.rounds[ed.r], n = S.names.length;
     rd.bids = fill(n); rd.tricks = fill(n);
     save(); closeSheet(); render();
+  });
   });
   $('cancel').addEventListener('click', closeSheet);
   $('scrim').addEventListener('click', closeSheet);
@@ -2440,19 +3212,21 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
   window.addEventListener('click', function(e){ if(!menu.hidden && e.composedPath().indexOf(menuWrap)===-1) setMenu(false); });
   document.addEventListener('keydown', function(e){ if(e.key==='Escape' && !menu.hidden){ setMenu(false); menuBtn.focus(); } });
 
-  function startFresh(names, rl){ S = fresh(names, rl); save(); buildNames(); render(); renderRules(); }
+  function startFresh(names, rl, f){ S = fresh(names, rl); S.first = f||0; save(); buildNames(); render(); renderRules(); }
   $('endGame').addEventListener('click', function(){
     var t = totalsOf(S), w = winnersOf(S);
     var who = w.length>1 ? w.map(function(p){ return S.names[p]; }).join(' and ')+' tie' : S.names[w[0]]+' wins';
-    if(!confirm('End the game now? '+who+' with '+fmtN(t[w[0]])+'.')) return;
+    ASK('End the game now? '+who+' with '+fmtN(t[w[0]])+'.', function(){
     syncHistory();
     var h = loadH(); h.forEach(function(g){ if(g.id===S.id){ g.complete = true; g.endedEarly = true; } }); saveH(h);
-    startFresh(S.names, S.rules); showView('history');
+    startFresh(S.names, S.rules, S.first); showView('history');
+  });
   });
   $('clearGame').addEventListener('click', function(){
-    if(!confirm('Clear this game? Its scores won’t be saved to History.')) return;
+    ASK('Clear this game? Its scores won’t be saved to History.', function(){
     saveH(loadH().filter(function(g){ return g.id!==S.id; }));
-    startFresh(S.names, S.rules);
+    startFresh(S.names, S.rules, S.first);
+  });
   });
 
   var setup = SETUP(R, {
@@ -2466,19 +3240,20 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
       {key:'miss', label:'Miss your bid', choices:[['0','0'],['tricks','1 per trick'],['minus','−1 per trick off'],['m10','−10']]},
       {key:'hook', label:'Dealer’s hook (bids can’t add up to the cards dealt)', choices:[['on','On'],['off','Off']]}
     ],
-    note:function(names, rl){
+    firstLabel:'Who deals first',
+    note:function(names, rl, f){
       var n = names.length, cap = capFor(n);
-      return (+rl.max>cap ? 'With '+n+' players, hands top out at '+cap+' cards. ' : '') + 'That’s '+seq(rl,n).length+' rounds. The first player listed deals first.';
+      return (+rl.max>cap ? 'With '+n+' players, hands top out at '+cap+' cards. ' : '') + 'That’s '+seq(rl,n).length+' rounds. '+names[f||0]+' deals first.';
     },
-    onStart:function(names, rl){ startFresh(names, rl); showView('score'); },
-    onSave:function(names, rl){
+    onStart:function(names, rl, f){ startFresh(names, rl, f); showView('score'); },
+    onSave:function(names, rl, f){
       var id = S.id, st = S.started;
-      S = fresh(names, rl); S.id = id; S.started = st;
+      S = fresh(names, rl); S.id = id; S.started = st; S.first = f||0;
       save(); buildNames(); render(); renderRules();
     }
   });
-  $('newGame').addEventListener('click', function(){ setup.open('new', {names:S.names, rules:S.rules, hasScores:hasData(S)}); });
-  $('houseRules').addEventListener('click', function(){ setup.open(hasData(S) ? 'view' : 'edit', {names:S.names, rules:S.rules}); });
+  $('newGame').addEventListener('click', function(){ setup.open('new', {names:S.names, rules:S.rules, first:S.first||0, hasScores:hasData(S)}); });
+  $('houseRules').addEventListener('click', function(){ setup.open(hasData(S) ? 'view' : 'edit', {names:S.names, rules:S.rules, first:S.first||0}); });
 
   // ----- History -----
   function gameTable(g){
@@ -2519,11 +3294,12 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
         '<button class="btn warn" type="button" data-delete>Delete</button></div></div>';
       d.querySelector('[data-print]').addEventListener('click', function(){ printGames([g]); });
       d.querySelector('[data-delete]').addEventListener('click', function(){
-        if(!confirm('Delete this game from History?')) return;
+        ASK('Delete this game from History?', function(){
         saveH(loadH().filter(function(x){ return x.id!==g.id; }));
         if(g.id===S.id){ S = fresh(S.names, S.rules); try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} render(); }
         renderHistory();
       });
+  });
       list.appendChild(d);
     });
   }
@@ -2544,7 +3320,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
       g.names.forEach(function(nm){ head.push(nm+' bid', nm+' took', nm+' score'); });
       lines.push(head.map(csvCell).join(','));
       g.rounds.forEach(function(rd, r){
-        var row = [r+1, rd.cards, g.names[r % n]];
+        var row = [r+1, rd.cards, g.names[((g.first||0) + r) % n]];
         g.names.forEach(function(_,p){ var sc = score(rd,p,rl); row.push(rd.bids[p]==null?'':rd.bids[p], rd.tricks[p]==null?'':rd.tricks[p], sc==null?'':sc); });
         lines.push(row.map(csvCell).join(','));
       });
@@ -2844,15 +3620,17 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
   $('endGame').addEventListener('click', function(){
     var t = totalsOf(S), w = winnersOf(S);
     var who = w.length>1 ? w.map(function(p){ return S.names[p]; }).join(' and ')+' tie' : S.names[w[0]]+' wins';
-    if(!confirm('End the game now? '+who+' with '+fmtN(t[w[0]])+'.')) return;
+    ASK('End the game now? '+who+' with '+fmtN(t[w[0]])+'.', function(){
     syncHistory();
     var h = loadH(); h.forEach(function(g){ if(g.id===S.id){ g.complete = true; g.endedEarly = true; } }); saveH(h);
     startFresh(S.names, S.rules); showView('history');
   });
+  });
   $('clearGame').addEventListener('click', function(){
-    if(!confirm('Clear this game? Its scores won’t be saved to History.')) return;
+    ASK('Clear this game? Its scores won’t be saved to History.', function(){
     saveH(loadH().filter(function(g){ return g.id!==S.id; }));
     startFresh(S.names, S.rules);
+  });
   });
 
   var setup = SETUP(R, {
@@ -2912,11 +3690,12 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
         '<button class="btn warn" type="button" data-delete>Delete</button></div></div>';
       d.querySelector('[data-print]').addEventListener('click', function(){ printGames([g]); });
       d.querySelector('[data-delete]').addEventListener('click', function(){
-        if(!confirm('Delete this game from History?')) return;
+        ASK('Delete this game from History?', function(){
         saveH(loadH().filter(function(x){ return x.id!==g.id; }));
         if(g.id===S.id){ S = fresh(S.names, S.rules); try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} render(); }
         renderHistory();
       });
+  });
       list.appendChild(d);
     });
   }
@@ -2971,20 +3750,903 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
 
  })(rootGolf); }catch(e){ console.error('Golf failed to start', e); }
 
-  // ===== Game selector =====
-  var tabs = document.querySelectorAll('.seg button');
+  // ===== Rummy =====
+  try{ (function(R){ 
+(function(){
+  var KEY = 'rummy-v1', HKEY = 'rummy-history-v1';
+  var R_DEFAULTS = {scoring:'winner', target:'100', aces:'1', rummy:'none'};
+  var R_OFFICIAL = {scoring:'winner', target:'100', aces:'1', rummy:'none'};
+  var $ = function(id){ return R.getElementById(id); };
+  function newId(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+  function houseRules(){
+    try{ var h = JSON.parse(localStorage.getItem('rummy-house')); if(h) return Object.assign({}, R_DEFAULTS, h); }catch(e){}
+    return Object.assign({}, R_DEFAULTS);
+  }
+  function rulesOf(g){ return Object.assign({}, R_DEFAULTS, (g && g.rules) || {}); }
+  function fresh(names, rl){ return { id:newId(), started:new Date().toISOString(), names:names.slice(), rules:Object.assign({}, rl || houseRules()), hands:[] }; }
+  function load(){
+    try{ var s = JSON.parse(localStorage.getItem(KEY)); if(s && s.hands && s.names && s.names.length>=2) return s; }catch(e){}
+    return null;
+  }
+  var S = load() || fresh(['Player 1','Player 2','Player 3']);
+  S.rules = rulesOf(S);
+
+  function loadH(){ try{ var h = JSON.parse(localStorage.getItem(HKEY)); if(Array.isArray(h)) return h; }catch(e){} return []; }
+  function saveH(h){ try{ localStorage.setItem(HKEY, JSON.stringify(h)); }catch(e){} }
+
+  // A hand stores who went out and the card points left in everyone else's hand
+  function handScores(hd, rl, n){
+    var mult = (rl.rummy==='double' && hd.rummy) ? 2 : 1, out = [], p;
+    for(p=0;p<n;p++) out.push(0);
+    if(rl.scoring==='winner'){
+      var sum = 0;
+      for(p=0;p<n;p++) if(p!==hd.out) sum += hd.left[p] || 0;
+      out[hd.out] = sum * mult;
+    } else {
+      for(p=0;p<n;p++) if(p!==hd.out) out[p] = (hd.left[p] || 0) * mult;
+    }
+    return out;
+  }
+  function totalsOf(g){
+    var rl = rulesOf(g), n = g.names.length, t = g.names.map(function(){ return 0; });
+    g.hands.forEach(function(hd){ handScores(hd, rl, n).forEach(function(v,p){ t[p] += v; }); });
+    return t;
+  }
+  function highWins(rl){ return rl.scoring==='winner'; }
+  function winnersOf(g){
+    var t = totalsOf(g), rl = rulesOf(g), m = highWins(rl) ? Math.max.apply(null,t) : Math.min.apply(null,t), w = [];
+    t.forEach(function(v,i){ if(v===m) w.push(i); });
+    return w;
+  }
+  function hasData(g){ return g.hands.length>0; }
+  function isComplete(g){ var t = totalsOf(g); return t.some(function(v){ return v >= +rulesOf(g).target; }); }
+  function syncHistory(){
+    var h = loadH(), i = -1;
+    h.forEach(function(g,k){ if(g.id===S.id) i = k; });
+    if(!hasData(S)){ if(i>-1) h.splice(i,1); }
+    else {
+      var g = { id:S.id, started:S.started, names:S.names.slice(), rules:S.rules, hands:JSON.parse(JSON.stringify(S.hands)), complete:isComplete(S) };
+      if(i>-1) h[i] = g; else h.push(g);
+    }
+    saveH(h);
+  }
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} syncHistory(); }
+
+  function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function fmtDate(iso){
+    var d = new Date(iso);
+    return d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric',year:'numeric'}) + ', ' + d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
+  }
+  function cols(n){ return '52px repeat('+n+',minmax(0,1fr))'; }
+  function dealCount(n){ return n<=2 ? 10 : (n<=4 ? 7 : 6); }
+  function summaryOf(rl){
+    var parts = [rl.scoring==='winner' ? 'Winner scores the others’ cards' : 'Everyone scores their own cards', (rl.scoring==='winner' ? 'First to ' : 'Ends at ')+rl.target, 'Aces '+rl.aces];
+    if(rl.rummy==='double') parts.push('Rummy doubles');
+    return parts.join(' · ');
+  }
+
+  // ----- Names -----
+  function buildNames(){
+    var el = $('names'), n = S.names.length;
+    el.style.gridTemplateColumns = cols(n);
+    el.classList.toggle('many', n>4);
+    el.innerHTML = '<div></div>';
+    S.names.forEach(function(nm,i){
+      var inp = document.createElement('input');
+      inp.value = nm; inp.maxLength = 14; inp.setAttribute('aria-label','Player '+(i+1)+' name');
+      inp.addEventListener('focus', function(){ inp.select(); });
+      inp.addEventListener('input', function(){ S.names[i] = inp.value || ('Player '+(i+1)); save(); renderTotals(); });
+      el.appendChild(inp);
+    });
+  }
+
+  // ----- Scorecard -----
+  function render(){
+    var rows = $('rows'), n = S.names.length, rl = S.rules;
+    rows.innerHTML = '';
+    S.hands.forEach(function(hd, h){
+      var sc = handScores(hd, rl, n);
+      var el = document.createElement('div');
+      el.className = 'grid row';
+      el.style.gridTemplateColumns = cols(n);
+      var tile = document.createElement('div');
+      tile.className = 'rtile'; tile.setAttribute('aria-label','Hand '+(h+1));
+      tile.innerHTML = '<b>'+(h+1)+'</b><span>hand</span>';
+      el.appendChild(tile);
+      for(var p=0;p<n;p++){
+        var b = document.createElement('button'), html;
+        b.type = 'button';
+        if(p===hd.out){ b.className = 'cell won'; html = (rl.scoring==='winner' ? '+'+sc[p] : '0') + '<small>out'+(hd.rummy && rl.rummy==='double' ? ' · rummy' : '')+'</small>'; }
+        else if(rl.scoring==='winner'){ b.className = 'cell'; html = '0<small>'+(hd.left[p]||0)+' left</small>'; }
+        else { b.className = 'cell'; html = String(sc[p]); }
+        b.innerHTML = html;
+        b.setAttribute('aria-label', S.names[p]+', hand '+(h+1)+': '+sc[p]+' points'+(p===hd.out?', went out':''));
+        b.addEventListener('click', (function(h){ return function(){ openHand(h); }; })(h));
+        el.appendChild(b);
+      }
+      rows.appendChild(el);
+    });
+    $('newHand').hidden = isComplete(S);
+    $('newHand').textContent = '+ Score hand '+(S.hands.length+1);
+    renderTotals();
+  }
+  function renderTotals(){
+    var totals = totalsOf(S), anyScore = hasData(S), n = S.names.length, rl = S.rules, hi = highWins(rl);
+    var best = hi ? Math.max.apply(null, totals) : Math.min.apply(null, totals);
+    var el = $('totals');
+    el.style.gridTemplateColumns = cols(n);
+    $('totalsBar').classList.toggle('many', n>4);
+    el.innerHTML = '<div class="lbl">'+(hi ? 'First to<br>'+rl.target : 'Ends at '+rl.target+'<br>low wins')+'</div>';
+    totals.forEach(function(t,p){
+      var d = document.createElement('div');
+      d.className = 'tot' + (anyScore && t===best ? ' lead' : '');
+      d.innerHTML = '<b class="num">'+t+'</b><span></span>';
+      d.querySelector('span').textContent = S.names[p] + (anyScore && t!==best ? (hi ? ' −'+(best-t) : ' +'+(t-best)) : '');
+      el.appendChild(d);
+    });
+    var done = $('done');
+    if(isComplete(S)){
+      var w = winnersOf(S).map(function(p){ return S.names[p]; });
+      $('doneText').textContent = (w.length>1 ? 'Tie game: '+w.join(' and ')+' with '+best+'.' : w[0]+' wins with '+best+'.') + ' Saved to History.';
+      done.style.display = 'block';
+    } else done.style.display = 'none';
+  }
+
+  // ----- Hand sheet -----
+  var ed = null, lastFocus = null;
+  function cardVals(rl){
+    return [['A',+rl.aces],['2',2],['3',3],['4',4],['5',5],['6',6],['7',7],['8',8],['9',9],['10',10],['J',10],['Q',10],['K',10]];
+  }
+  function openHand(h){
+    var n = S.names.length, isNew = h==null;
+    var hd = isNew ? {out:null, left:S.names.map(function(){ return null; }), rummy:false} : JSON.parse(JSON.stringify(S.hands[h]));
+    ed = {h: isNew ? S.hands.length : h, isNew:isNew, hd:hd, sel:null, picks:{}, labels:{}};
+    S.names.forEach(function(_,p){ ed.picks[p] = []; ed.labels[p] = []; });
+    lastFocus = R.activeElement;
+    pickNextLeft();
+    $('sheetTitle').textContent = 'Hand '+(ed.h+1);
+    $('sheetSub').textContent = rulesOf(S).scoring==='winner' ? 'Winner scores the others’ cards' : 'Everyone scores their own cards';
+    $('erase').style.display = isNew ? 'none' : 'block';
+    $('typed').value = '';
+    drawSheet();
+    $('sheetWrap').classList.add('open');
+  }
+  function pickNextLeft(){
+    var n = S.names.length;
+    ed.sel = null;
+    for(var p=0;p<n;p++){ if(p!==ed.hd.out && ed.hd.left[p]==null){ ed.sel = p; return; } }
+    for(p=0;p<n;p++){ if(p!==ed.hd.out){ ed.sel = p; return; } }
+  }
+  function curVal(p){ return ed.hd.left[p]; }
+  function drawSheet(){
+    var rl = S.rules, n = S.names.length, hd = ed.hd;
+    var oc = $('outChips'); oc.innerHTML = '';
+    S.names.forEach(function(nm,p){
+      var b = document.createElement('button');
+      b.type = 'button'; b.setAttribute('role','radio'); b.textContent = nm;
+      b.setAttribute('aria-checked', String(hd.out===p));
+      b.addEventListener('click', function(){ hd.out = p; hd.left[p] = null; ed.picks[p] = []; ed.labels[p] = []; if(ed.sel===p || ed.sel==null) pickNextLeft(); $('typed').value=''; drawSheet(); });
+      oc.appendChild(b);
+    });
+    $('rummyBox').hidden = rl.rummy!=='double';
+    $('rummyChk').checked = !!hd.rummy;
+    var lc = $('leftChips'); lc.innerHTML = '';
+    S.names.forEach(function(nm,p){
+      var b = document.createElement('button');
+      b.type = 'button'; b.setAttribute('role','radio');
+      b.disabled = hd.out===p || hd.out==null;
+      b.innerHTML = esc(nm) + (hd.out===p ? '<small>out</small>' : (curVal(p)!=null ? '<small>'+curVal(p)+'</small>' : ''));
+      b.setAttribute('aria-checked', String(hd.out!=null && ed.sel===p));
+      b.addEventListener('click', function(){ ed.sel = p; $('typed').value=''; drawSheet(); });
+      lc.appendChild(b);
+    });
+    var active = hd.out!=null && ed.sel!=null;
+    $('pad').querySelectorAll('button').forEach(function(b){ b.disabled = !active; });
+    $('undo').disabled = $('reset').disabled = $('typed').disabled = !active;
+    $('leftLbl').textContent = active ? 'Cards left in '+S.names[ed.sel]+'’s hand' : 'Cards left in hand';
+    $('readout').textContent = active ? (curVal(ed.sel)||0) : 0;
+    $('trail').textContent = active ? (ed.labels[ed.sel].join(' + ') || (curVal(ed.sel)!=null && !ed.picks[ed.sel].length ? 'Saved' : '')) : '';
+    var missing = hd.out==null ? -1 : S.names.filter(function(_,p){ return p!==hd.out && hd.left[p]==null; }).length;
+    var msg = hd.out==null ? 'Pick who went out first.' : (missing ? 'Count the cards for '+missing+' more player'+(missing>1?'s':'')+'.' : '');
+    if(hd.out!=null && !missing){
+      var sc = handScores(hd, rl, n);
+      msg = rl.scoring==='winner' ? S.names[hd.out]+' scores '+sc[hd.out]+'.' : 'Ready to save.';
+    }
+    $('handSum').textContent = msg;
+    $('save').disabled = hd.out==null || missing>0;
+  }
+  function setVal(v, label){
+    var p = ed.sel; if(p==null) return;
+    if(label!=null){ ed.picks[p].push(v); ed.labels[p].push(label); ed.hd.left[p] = ed.picks[p].reduce(function(a,b){ return a+b; },0); }
+    drawSheet();
+  }
+  function buildPad(){
+    var pad = $('pad'); pad.innerHTML = '';
+    cardVals(S.rules).forEach(function(c){
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'half';
+      b.innerHTML = '<span class="rk">'+c[0]+'</span>' + (c[0]==='A'||c[0]==='J'||c[0]==='Q'||c[0]==='K' ? '<small>'+c[1]+'</small>' : '');
+      b.setAttribute('aria-label','Add '+c[0]+', '+c[1]);
+      b.addEventListener('click', function(){ $('typed').value=''; setVal(c[1], c[0]); });
+      pad.appendChild(b);
+    });
+    var z = document.createElement('button');
+    z.type = 'button'; z.className = 'half blank'; z.innerHTML = 'None<small>0</small>';
+    z.setAttribute('aria-label','No cards left, 0');
+    z.addEventListener('click', function(){ var p = ed.sel; if(p==null) return; ed.picks[p] = []; ed.labels[p] = ['none']; ed.hd.left[p] = 0; drawSheet(); });
+    pad.appendChild(z);
+  }
+  function closeSheet(){ $('sheetWrap').classList.remove('open'); ed = null; if(lastFocus){ try{ lastFocus.focus(); }catch(e){} } }
+  $('undo').addEventListener('click', function(){
+    var p = ed && ed.sel; if(p==null) return;
+    ed.picks[p].pop(); ed.labels[p].pop();
+    ed.hd.left[p] = ed.picks[p].length ? ed.picks[p].reduce(function(a,b){ return a+b; },0) : null;
+    drawSheet();
+  });
+  $('reset').addEventListener('click', function(){ var p = ed && ed.sel; if(p==null) return; ed.picks[p] = []; ed.labels[p] = []; ed.hd.left[p] = null; $('typed').value=''; drawSheet(); });
+  $('typed').addEventListener('input', function(){
+    var p = ed && ed.sel; if(p==null) return;
+    var v = $('typed').value;
+    ed.picks[p] = []; ed.labels[p] = [];
+    ed.hd.left[p] = v==='' ? null : Math.max(0, parseInt(v,10)||0);
+    drawSheet();
+  });
+  $('rummyChk').addEventListener('change', function(){ if(ed){ ed.hd.rummy = $('rummyChk').checked; drawSheet(); } });
+  $('save').addEventListener('click', function(){
+    if(!ed) return;
+    var hd = ed.hd; hd.left[hd.out] = null;
+    if(ed.isNew) S.hands.push(hd); else S.hands[ed.h] = hd;
+    save(); closeSheet(); render();
+  });
+  $('erase').addEventListener('click', function(){
+    if(!ed || ed.isNew) return; ASK('Delete hand '+(ed.h+1)+'?', function(){
+    S.hands.splice(ed.h, 1);
+    save(); closeSheet(); render();
+  });
+  });
+  $('cancel').addEventListener('click', closeSheet);
+  $('scrim').addEventListener('click', closeSheet);
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape' && ed) closeSheet(); });
+  $('newHand').addEventListener('click', function(){ openHand(null); });
+
+  // ----- Rules page -----
+  function li(arr){ return arr.map(function(x){ return '<li>'+x+'</li>'; }).join(''); }
+  function renderRules(){
+    var rl = S.rules, n = S.names.length;
+    $('r-sum').innerHTML = '<b>This game:</b> '+esc(summaryOf(rl));
+    $('r-setup').innerHTML = li([
+      'Use one 52-card deck, no jokers.',
+      'Deal '+dealCount(n)+' cards to each player ('+n+' players). With 2 players deal 10, with 3–4 deal 7, with 5–6 deal 6.',
+      'Put the rest face down as the stock and turn the top card over to start the discard pile.',
+      'The deal passes to the left after each hand.'
+    ]);
+    $('r-turn').innerHTML = li([
+      'Draw the top card of the stock or the discard pile.',
+      'Lay down any melds: a set of 3 or 4 cards of the same rank, or a run of 3 or more in the same suit (like 5-6-7 of hearts).',
+      'Add cards to any meld already on the table, yours or anyone’s.',
+      'Discard one card to end your turn.',
+      +rl.aces===1 ? 'Aces are low: A-2-3 is a run, Q-K-A is not.' : 'Aces can be low (A-2-3) or high (Q-K-A), but not both (K-A-2).'
+    ]);
+    $('r-end').innerHTML = li([
+      'The hand ends as soon as someone gets rid of their last card, by melding it or discarding it.',
+      'If the stock runs out, turn the discard pile over without shuffling and keep going.'
+    ].concat(rl.rummy==='double' ? ['Going out in a single turn, with no melds laid down earlier, is rummy: that hand’s points are doubled.'] : []));
+    $('r-scoretable').innerHTML = [['Ace', rl.aces],['2 through 10','Face value'],['Jack, Queen, King','10']].map(function(x){ return '<tr><td>'+x[0]+'</td><td>'+x[1]+'</td></tr>'; }).join('');
+    $('r-scorenote').textContent = rl.scoring==='winner'
+      ? 'Count the cards left in each player’s hand. The player who went out scores the total. First to '+rl.target+' wins.'
+      : 'Each player adds up the cards left in their own hand; the player who went out scores 0. When anyone reaches '+rl.target+', the lowest total wins.';
+  }
+
+  // ----- Game menu -----
+  var menuBtn = $('gameMenuBtn'), menu = $('gameMenu'), menuWrap = menuBtn.parentNode;
+  function setMenu(open){
+    menu.hidden = !open; menuBtn.setAttribute('aria-expanded', String(open));
+    if(open){ var has = hasData(S); $('endGame').disabled = !has || isComplete(S); $('clearGame').disabled = !has; }
+  }
+  menuBtn.addEventListener('click', function(){ setMenu(menu.hidden); });
+  menu.addEventListener('click', function(e){ if(e.target.closest('button')) setMenu(false); });
+  window.addEventListener('click', function(e){ if(!menu.hidden && e.composedPath().indexOf(menuWrap)===-1) setMenu(false); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape' && !menu.hidden){ setMenu(false); menuBtn.focus(); } });
+
+  function startFresh(names, rl){ S = fresh(names, rl); save(); buildNames(); buildPad(); render(); renderRules(); }
+  $('endGame').addEventListener('click', function(){
+    var t = totalsOf(S), w = winnersOf(S);
+    var who = w.length>1 ? w.map(function(p){ return S.names[p]; }).join(' and ')+' tie' : S.names[w[0]]+' wins';
+    ASK('End the game now? '+who+' with '+t[w[0]]+'.', function(){
+    syncHistory();
+    var h = loadH(); h.forEach(function(g){ if(g.id===S.id){ g.complete = true; g.endedEarly = true; } }); saveH(h);
+    startFresh(S.names, S.rules); showView('history');
+  });
+  });
+  $('clearGame').addEventListener('click', function(){
+    ASK('Clear this game? Its scores won’t be saved to History.', function(){
+    saveH(loadH().filter(function(g){ return g.id!==S.id; }));
+    startFresh(S.names, S.rules);
+  });
+  });
+
+  var setup = SETUP(R, {
+    houseKey:'rummy-house', defaults:R_DEFAULTS, official:R_OFFICIAL, minPlayers:2, maxPlayers:6,
+    vars:'--su-bg:var(--surface);--su-ink:var(--ink);--su-muted:var(--muted);--su-line:var(--line);--su-accent:var(--felt);--su-chip:var(--now)',
+    defaultName:function(i){ return 'Player '+(i+1); },
+    schema:[
+      {key:'scoring', label:'Scoring', choices:[['winner','Winner scores the others’ cards'],['penalty','Everyone scores their own cards']]},
+      {key:'target', label:'Play to', choices:[['100','100'],['150','150'],['250','250'],['500','500']]},
+      {key:'aces', label:'Aces count', choices:[['1','1'],['11','11'],['15','15']]},
+      {key:'rummy', label:'Going out all at once (rummy)', choices:[['none','No bonus'],['double','Doubles the hand']]}
+    ],
+    note:function(names, rl){ return 'Deal '+dealCount(names.length)+' cards each.' + (rl.scoring==='winner' ? ' High score wins.' : ' Low score wins.'); },
+    onStart:function(names, rl){ startFresh(names, rl); showView('score'); },
+    onSave:function(names, rl){
+      var id = S.id, st = S.started;
+      S = fresh(names, rl); S.id = id; S.started = st;
+      save(); buildNames(); buildPad(); render(); renderRules();
+    }
+  });
+  $('newGame').addEventListener('click', function(){ setup.open('new', {names:S.names, rules:S.rules, hasScores:hasData(S)}); });
+  $('houseRules').addEventListener('click', function(){ setup.open(hasData(S) ? 'view' : 'edit', {names:S.names, rules:S.rules}); });
+
+  // ----- History -----
+  function gameTable(g){
+    var rl = rulesOf(g), n = g.names.length, t = totalsOf(g);
+    var h = '<div class="tscroll"><table class="gt"><thead><tr><th>Hand</th>' +
+      g.names.map(function(nm){ return '<th>'+esc(nm)+'</th>'; }).join('') + '</tr></thead><tbody>';
+    g.hands.forEach(function(hd, i){
+      var sc = handScores(hd, rl, n);
+      h += '<tr><td>'+(i+1)+'</td>' + sc.map(function(v,p){ return '<td>'+v+(p===hd.out ? ' <small>out</small>' : '')+'</td>'; }).join('') + '</tr>';
+    });
+    return h + '</tbody><tfoot><tr><td>Total</td>' + t.map(function(v){ return '<td>'+v+'</td>'; }).join('') + '</tr></tfoot></table></div>';
+  }
+  function resultLine(g){
+    if(!g.complete) return 'Unfinished game.';
+    var t = totalsOf(g), w = winnersOf(g);
+    return (g.endedEarly ? 'Ended early. ' : '') + (w.length>1 ? 'Tie: '+w.map(function(p){ return g.names[p]; }).join(' and ') : 'Winner: '+g.names[w[0]]) + ' (' + t[w[0]] + ')';
+  }
+  function sortedH(){ return loadH().sort(function(a,b){ return b.started.localeCompare(a.started); }); }
+  function renderHistory(){
+    var list = $('historyList'), h = sortedH();
+    list.innerHTML = '';
+    $('printAll').disabled = $('downloadCsv').disabled = !h.length;
+    if(!h.length){ list.innerHTML = '<p class="empty-h">No games yet. Games save here automatically as you play.</p>'; return; }
+    h.forEach(function(g){
+      var t = totalsOf(g), w = winnersOf(g), rl = rulesOf(g);
+      var d = document.createElement('details'); d.className = 'game';
+      d.innerHTML = '<summary><div class="gmeta"><span>'+esc(fmtDate(g.started))+'</span>' +
+        (g.endedEarly ? '<span class="tag">Ended early</span>' : g.complete ? '' : '<span class="tag">'+(g.id===S.id ? 'In progress' : 'Unfinished')+'</span>') + '</div>' +
+        '<div class="gtots" style="grid-template-columns:repeat('+g.names.length+',minmax(0,1fr))">' + t.map(function(v,p){
+          return '<div class="'+(g.complete && w.indexOf(p)>-1 ? 'win' : '')+'"><b>'+v+'</b><span>'+esc(g.names[p])+'</span></div>';
+        }).join('') + '</div></summary>' +
+        '<div class="gbody"><p class="grules">Rules: '+esc(summaryOf(rl))+'</p>' + gameTable(g) +
+        '<div class="gactions"><button class="btn alt" type="button" data-print>Print this game</button>' +
+        '<button class="btn warn" type="button" data-delete>Delete</button></div></div>';
+      d.querySelector('[data-print]').addEventListener('click', function(){ printGames([g]); });
+      d.querySelector('[data-delete]').addEventListener('click', function(){
+        ASK('Delete this game from History?', function(){
+        saveH(loadH().filter(function(x){ return x.id!==g.id; }));
+        if(g.id===S.id){ S = fresh(S.names, S.rules); try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} render(); }
+        renderHistory();
+      });
+  });
+      list.appendChild(d);
+    });
+  }
+  function printGames(games){
+    $('printArea').innerHTML = '<h1>Rummy scores</h1>' + games.map(function(g){
+      return '<section class="pgame"><h2>'+esc(fmtDate(g.started))+'</h2><p>Rules: '+esc(summaryOf(rulesOf(g)))+'</p>'+gameTable(g)+'<p>'+esc(resultLine(g))+'</p></section>';
+    }).join('');
+    window.print();
+  }
+  function csvCell(v){ v = String(v); return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }
+  function downloadCsv(){
+    var lines = [];
+    sortedH().forEach(function(g){
+      var rl = rulesOf(g), n = g.names.length, t = totalsOf(g);
+      lines.push(['Game', fmtDate(g.started), g.endedEarly ? 'Ended early' : g.complete ? 'Complete' : 'Unfinished'].map(csvCell).join(','));
+      lines.push(['Rules', summaryOf(rl)].map(csvCell).join(','));
+      lines.push(['Hand','Went out'].concat(g.names).map(csvCell).join(','));
+      g.hands.forEach(function(hd, i){ lines.push([i+1, g.names[hd.out]].concat(handScores(hd, rl, n)).map(csvCell).join(',')); });
+      lines.push(['Total',''].concat(t).map(csvCell).join(','));
+      lines.push('');
+    });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([lines.join('\n')], {type:'text/csv'}));
+    a.download = 'rummy-history-' + new Date().toISOString().slice(0,10) + '.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+  }
+
+  var VIEWS = ['rules','score','history'];
+  function showView(v){
+    VIEWS.forEach(function(k){
+      $('t-'+k).setAttribute('aria-selected', String(k===v));
+      $('v-'+k).hidden = k!==v;
+    });
+    $('totalsBar').hidden = v!=='score';
+    if(v==='history') renderHistory();
+    try{ localStorage.setItem('rummy-tab', v); }catch(e){}
+    window.scrollTo(0,0);
+  }
+  VIEWS.forEach(function(k){ $('t-'+k).addEventListener('click', function(){ showView(k); }); });
+  $('printAll').addEventListener('click', function(){ printGames(sortedH()); });
+  $('downloadCsv').addEventListener('click', downloadCsv);
+
+  buildNames();
+  buildPad();
+  syncHistory();
+  render();
+  renderRules();
+  var t0 = 'rules'; try{ t0 = localStorage.getItem('rummy-tab') || 'rules'; }catch(e){}
+  showView(VIEWS.indexOf(t0)>-1 ? t0 : 'rules');
+})();
+
+ })(rootRummy); }catch(e){ console.error('Rummy failed to start', e); }
+
+  // ===== Spades =====
+  try{ (function(R){ 
+(function(){
+  var KEY = 'spades-v1', HKEY = 'spades-history-v1';
+  var SP_DEFAULTS = {mode:'partners', target:'500', nil:'100', blind:'off', nilTricks:'bags', bags:'10'};
+  var SP_OFFICIAL = {mode:'partners', target:'500', nil:'100', blind:'off', nilTricks:'bags', bags:'10'};
+  var $ = function(id){ return R.getElementById(id); };
+  function newId(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+  function fill(n){ var a=[]; for(var i=0;i<n;i++) a.push(null); return a; }
+  function houseRules(){
+    try{ var h = JSON.parse(localStorage.getItem('spades-house')); if(h) return Object.assign({}, SP_DEFAULTS, h); }catch(e){}
+    return Object.assign({}, SP_DEFAULTS);
+  }
+  function rulesOf(g){ return Object.assign({}, SP_DEFAULTS, (g && g.rules) || {}); }
+  function fresh(names, rl){
+    rl = Object.assign({}, rl || houseRules());
+    if(rl.mode==='partners' && names.length!==4) rl.mode = 'cutthroat';
+    return { id:newId(), started:new Date().toISOString(), names:names.slice(), rules:rl, hands:[] };
+  }
+  function load(){
+    try{ var s = JSON.parse(localStorage.getItem(KEY)); if(s && s.hands && s.names && s.names.length>=2) return s; }catch(e){}
+    return null;
+  }
+  var S = load() || fresh(['Player 1','Player 2','Player 3','Player 4']);
+  S.rules = rulesOf(S);
+
+  function loadH(){ try{ var h = JSON.parse(localStorage.getItem(HKEY)); if(Array.isArray(h)) return h; }catch(e){} return []; }
+  function saveH(h){ try{ localStorage.setItem(HKEY, JSON.stringify(h)); }catch(e){} }
+
+  function sidesOf(g){ return rulesOf(g).mode==='partners' && g.names.length===4 ? [[0,2],[1,3]] : g.names.map(function(_,i){ return [i]; }); }
+  function sideName(g, side){ return side.map(function(p){ return g.names[p]; }).join(' & '); }
+  function tricksTotal(n){ return n===3 ? 17 : 13; }
+  function bidsDone(hd){ return hd.bids.every(function(v){ return v!=null; }); }
+  function handDone(hd){ return bidsDone(hd) && hd.tricks.every(function(v){ return v!=null; }); }
+  function isNil(hd, p, rl){ return rl.nil!=='off' && hd.bids[p]===0; }
+
+  // Score one finished hand for one side (a team, or a single player)
+  function sideHand(hd, side, rl){
+    var nilPts = 0, contract = 0, got = 0, nilTr = 0, nv = +rl.nil || 0;
+    side.forEach(function(p){
+      if(isNil(hd, p, rl)){ var m = hd.blind && hd.blind[p] ? 2 : 1; nilPts += hd.tricks[p]===0 ? nv*m : -nv*m; nilTr += hd.tricks[p]; }
+      else { contract += hd.bids[p]; got += hd.tricks[p]; }
+    });
+    if(rl.nilTricks==='help') got += nilTr;
+    var pts = nilPts, bags = 0, made = null;
+    if(contract>0){
+      made = got>=contract;
+      if(made){ pts += 10*contract + (got-contract); bags = got-contract; } else pts -= 10*contract;
+    } else { pts += got; bags = got; }
+    if(rl.nilTricks==='bags'){ pts += nilTr; bags += nilTr; }
+    var bid = side.reduce(function(a,p){ return a + (isNil(hd,p,rl) ? 0 : hd.bids[p]); },0);
+    var took = side.reduce(function(a,p){ return a + hd.tricks[p]; },0);
+    return {pts:pts, bags:bags, made:made, bid:bid, took:took};
+  }
+  // Running totals with the bag penalty applied as bags pile up
+  function compute(g){
+    var rl = rulesOf(g), sides = sidesOf(g), tot = sides.map(function(){ return 0; }), bagAcc = sides.map(function(){ return 0; }), rows = [];
+    g.hands.forEach(function(hd){
+      if(!handDone(hd)){ rows.push(null); return; }
+      rows.push(sides.map(function(side, k){
+        var r = sideHand(hd, side, rl); r.pen = 0;
+        bagAcc[k] += r.bags;
+        if(rl.bags==='10'){ while(bagAcc[k]>=10){ r.pen -= 100; bagAcc[k] -= 10; } }
+        r.total = r.pts + r.pen; tot[k] += r.total;
+        return r;
+      }));
+    });
+    return {sides:sides, rows:rows, tot:tot, bags:bagAcc};
+  }
+  function totalsOf(g){ return compute(g).tot; }
+  function winnersOf(g){
+    var t = totalsOf(g), m = Math.max.apply(null,t), w = [];
+    t.forEach(function(v,i){ if(v===m) w.push(i); });
+    return w;
+  }
+  function hasData(g){ return g.hands.length>0; }
+  function isComplete(g){
+    var t = totalsOf(g), m = Math.max.apply(null,t);
+    var last = g.hands[g.hands.length-1];
+    return g.hands.length>0 && handDone(last) && m >= +rulesOf(g).target && t.filter(function(v){ return v===m; }).length===1;
+  }
+  function syncHistory(){
+    var h = loadH(), i = -1;
+    h.forEach(function(g,k){ if(g.id===S.id) i = k; });
+    if(!hasData(S)){ if(i>-1) h.splice(i,1); }
+    else {
+      var g = { id:S.id, started:S.started, names:S.names.slice(), first:S.first||0, rules:S.rules, hands:JSON.parse(JSON.stringify(S.hands)), complete:isComplete(S) };
+      if(i>-1) h[i] = g; else h.push(g);
+    }
+    saveH(h);
+  }
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} syncHistory(); }
+
+  function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function fmtN(v){ return v<0 ? '−'+Math.abs(v) : String(v); }
+  function fmtDate(iso){
+    var d = new Date(iso);
+    return d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric',year:'numeric'}) + ', ' + d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
+  }
+  function cols(n){ return '52px repeat('+n+',minmax(0,1fr))'; }
+  function summaryOf(rl){
+    var parts = [rl.mode==='partners' ? 'Partners' : 'Every player alone', 'To '+rl.target, rl.nil==='off' ? 'No nil' : 'Nil ±'+rl.nil];
+    if(rl.nil!=='off' && rl.blind==='on') parts.push('Blind nil ±'+(2*rl.nil));
+    parts.push(rl.bags==='10' ? '10 bags −100' : 'No bag penalty');
+    return parts.join(' · ');
+  }
+
+  // ----- Scorecard -----
+  function buildNames(){
+    var el = $('names'), sides = sidesOf(S);
+    el.style.gridTemplateColumns = cols(sides.length);
+    el.classList.toggle('many', sides.length>4);
+    el.innerHTML = '<div></div>' + sides.map(function(side){ return '<div class="teamname">'+esc(sideName(S, side))+'</div>'; }).join('');
+  }
+  function render(){
+    var rows = $('rows'), c = compute(S), n = c.sides.length, rl = S.rules;
+    rows.innerHTML = '';
+    S.hands.forEach(function(hd, h){
+      var el = document.createElement('div');
+      el.className = 'grid row' + (!handDone(hd) ? ' now' : '');
+      el.style.gridTemplateColumns = cols(n);
+      var tile = document.createElement('div');
+      tile.className = 'rtile'; tile.setAttribute('aria-label','Hand '+(h+1));
+      tile.innerHTML = '<b>'+(h+1)+'</b><span>hand</span>';
+      el.appendChild(tile);
+      c.sides.forEach(function(side, k){
+        var b = document.createElement('button'), r = c.rows[h] && c.rows[h][k], html, cls = 'cell';
+        b.type = 'button';
+        if(r){
+          cls += r.total<0 ? ' miss' : ' made';
+          var bidTxt = side.map(function(p){ return isNil(hd,p,rl) ? (hd.blind && hd.blind[p] ? 'BN' : 'nil') : hd.bids[p]; }).join('+');
+          html = '<span class="sc">'+fmtN(r.total)+'</span><small>'+bidTxt+' · took '+r.took+(r.pen ? ' · bags '+fmtN(r.pen) : '')+'</small>';
+        } else {
+          cls += ' bidonly';
+          html = '<small>bid</small><span class="sc">'+side.map(function(p){ return isNil(hd,p,rl) ? 'nil' : hd.bids[p]; }).join('+')+'</span>';
+        }
+        b.className = cls; b.innerHTML = html;
+        b.setAttribute('aria-label', sideName(S, side)+', hand '+(h+1)+(r ? ': '+r.total+' points' : ': bids in'));
+        b.addEventListener('click', function(){ openHand(h); });
+        el.appendChild(b);
+      });
+      rows.appendChild(el);
+    });
+    var last = S.hands[S.hands.length-1];
+    $('newHand').hidden = isComplete(S);
+    $('newHand').textContent = last && !handDone(last) ? 'Enter tricks for hand '+S.hands.length : '+ Bids for hand '+(S.hands.length+1);
+    renderTotals();
+  }
+  function renderTotals(){
+    var c = compute(S), anyScore = c.rows.some(Boolean), n = c.sides.length, rl = S.rules;
+    var max = Math.max.apply(null, c.tot);
+    var el = $('totals');
+    el.style.gridTemplateColumns = cols(n);
+    $('totalsBar').classList.toggle('many', n>3);
+    el.innerHTML = '<div class="lbl">First to<br>'+rl.target+'</div>';
+    c.tot.forEach(function(t,k){
+      var d = document.createElement('div');
+      d.className = 'tot' + (anyScore && t===max ? ' lead' : '');
+      d.innerHTML = '<b class="num">'+fmtN(t)+'</b><span></span>';
+      d.querySelector('span').innerHTML = esc(sideName(S, c.sides[k])) + (rl.bags==='10' ? '<small>'+c.bags[k]+' bag'+(c.bags[k]===1?'':'s')+'</small>' : '');
+      el.appendChild(d);
+    });
+    var done = $('done');
+    if(isComplete(S)){
+      var w = winnersOf(S);
+      $('doneText').textContent = sideName(S, c.sides[w[0]])+' win'+(c.sides[w[0]].length>1?'':'s')+' with '+fmtN(max)+'. Saved to History.';
+      done.style.display = 'block';
+    } else done.style.display = 'none';
+  }
+
+  // ----- Hand sheet: bids, then tricks -----
+  var ed = null, lastFocus = null;
+  function openHand(h){
+    var n = S.names.length, isNew = h==null;
+    var hd = isNew ? {bids:fill(n), blind:S.names.map(function(){ return false; }), tricks:fill(n)} : JSON.parse(JSON.stringify(S.hands[h]));
+    if(!hd.blind) hd.blind = S.names.map(function(){ return false; });
+    ed = {h: isNew ? S.hands.length : h, isNew:isNew, hd:hd, phase: bidsDone(hd) ? 'tricks' : 'bids', focus:null};
+    loadVals();
+    lastFocus = R.activeElement;
+    drawSheet();
+    $('sheetWrap').classList.add('open');
+    setTimeout(function(){ var f = $('steppers').querySelector('button'); if(f) f.focus(); }, 50);
+  }
+  function loadVals(){ ed.vals = (ed.phase==='bids' ? ed.hd.bids : ed.hd.tricks).slice(); }
+  function closeSheet(){ $('sheetWrap').classList.remove('open'); ed = null; if(lastFocus){ try{ lastFocus.focus(); }catch(e){} } }
+  function drawSheet(){
+    var rl = S.rules, n = S.names.length, d = ((S.first||0) + ed.h) % n, isB = ed.phase==='bids', total = tricksTotal(n), hd = ed.hd;
+    $('sheetTitle').textContent = 'Hand '+(ed.h+1);
+    $('sheetSub').textContent = S.names[d]+' deals';
+    $('phBids').setAttribute('aria-pressed', String(isB));
+    $('phTricks').setAttribute('aria-pressed', String(!isB));
+    $('phTricks').disabled = !bidsDone(hd);
+    var order = []; for(var k=1;k<=n;k++) order.push((d+k)%n);
+    var box = $('steppers'); box.innerHTML = '';
+    var sides = sidesOf(S);
+    order.forEach(function(p){
+      var v = ed.vals[p], nilNow = isB && rl.nil!=='off' && v===0;
+      var team = sides.length<n ? sides.filter(function(s){ return s.indexOf(p)>-1; })[0] : null;
+      var sub = team ? 'with '+S.names[team.filter(function(q){ return q!==p; })[0]] : '';
+      if(p===d) sub = (sub ? sub+' · ' : '') + 'deals';
+      if(!isB) sub = (sub ? sub+' · ' : '') + (isNil(hd,p,rl) ? (hd.blind[p] ? 'blind nil' : 'nil') : 'bid '+hd.bids[p]);
+      var row = document.createElement('div');
+      row.className = 'step';
+      var blindBtn = nilNow && rl.blind==='on' ? '<button type="button" class="blind" data-b="'+p+'" aria-pressed="'+(hd.blind[p]?'true':'false')+'">Blind</button>' : '';
+      row.innerHTML = '<div class="who"></div><div class="ctl">' + blindBtn +
+        '<button type="button" data-k="'+p+':-1" aria-label="One less for '+esc(S.names[p])+'">−</button>' +
+        '<output class="'+(nilNow?'nil':'')+'">'+(v==null ? '–' : (nilNow ? 'Nil' : v))+'</output>' +
+        '<button type="button" data-k="'+p+':1" aria-label="One more for '+esc(S.names[p])+'">+</button></div>';
+      row.querySelector('.who').innerHTML = esc(S.names[p]) + (sub ? '<small>'+esc(sub)+'</small>' : '');
+      row.querySelectorAll('[data-k]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var dd = +btn.dataset.k.split(':')[1], cur = ed.vals[p], max = isB ? 13 : total;
+          ed.vals[p] = cur==null ? 0 : Math.max(0, Math.min(max, cur+dd));
+          if(isB && ed.vals[p]!==0) hd.blind[p] = false;
+          ed.focus = btn.dataset.k;
+          drawSheet();
+        });
+      });
+      var bb = row.querySelector('[data-b]');
+      if(bb) bb.addEventListener('click', function(){ hd.blind[p] = !hd.blind[p]; drawSheet(); });
+      box.appendChild(row);
+    });
+    if(ed.focus){ var fb = box.querySelector('[data-k="'+ed.focus+'"]'); if(fb) fb.focus(); ed.focus = null; }
+    var all = ed.vals.every(function(v){ return v!=null; });
+    var tot = ed.vals.reduce(function(a,v){ return a+(v||0); },0), msg, ok, bad = false;
+    if(isB){
+      msg = 'Bids total '+tot+' of '+total+' tricks.';
+      ok = all;
+    } else {
+      msg = 'Tricks total '+tot+' of '+total+'.';
+      if(all && tot!==total){ msg += ' They need to add up to '+total+'.'; bad = true; }
+      ok = all && tot===total;
+    }
+    $('ohSum').textContent = msg;
+    $('ohSum').classList.toggle('bad', bad);
+    $('save').disabled = !ok;
+    $('save').textContent = isB ? 'Save bids' : 'Save tricks';
+    $('clearRound').style.display = ed.isNew ? 'none' : 'block';
+  }
+  $('phBids').addEventListener('click', function(){ if(!ed) return; ed.phase = 'bids'; loadVals(); drawSheet(); });
+  $('phTricks').addEventListener('click', function(){ if(!ed) return; ed.phase = 'tricks'; loadVals(); drawSheet(); });
+  $('save').addEventListener('click', function(){
+    if(!ed) return;
+    var hd = ed.hd;
+    if(ed.phase==='bids'){ hd.bids = ed.vals.slice(); hd.bids.forEach(function(v,p){ if(!(S.rules.nil!=='off' && v===0)) hd.blind[p] = false; }); }
+    else hd.tricks = ed.vals.slice();
+    if(ed.isNew) S.hands.push(hd); else S.hands[ed.h] = hd;
+    save(); closeSheet(); render();
+  });
+  $('clearRound').addEventListener('click', function(){
+    if(!ed || ed.isNew) return; ASK('Delete hand '+(ed.h+1)+'?', function(){
+    S.hands.splice(ed.h, 1);
+    save(); closeSheet(); render();
+  });
+  });
+  $('cancel').addEventListener('click', closeSheet);
+  $('scrim').addEventListener('click', closeSheet);
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape' && ed) closeSheet(); });
+  $('newHand').addEventListener('click', function(){
+    var last = S.hands[S.hands.length-1];
+    openHand(last && !handDone(last) ? S.hands.length-1 : null);
+  });
+
+  // ----- Rules page -----
+  function li(arr){ return arr.map(function(x){ return '<li>'+x+'</li>'; }).join(''); }
+  function renderRules(){
+    var rl = S.rules, n = S.names.length, partners = rl.mode==='partners', nv = +rl.nil || 0;
+    $('r-sum').innerHTML = '<b>This game:</b> '+esc(summaryOf(rl));
+    $('r-setup').innerHTML = li([
+      partners ? 'Four players in two teams. Partners sit across from each other: '+esc(S.names[0])+' & '+esc(S.names[2])+' against '+esc(S.names[1])+' & '+esc(S.names[3])+'.' : 'Everyone plays alone.',
+      n===2 ? 'With 2 players there’s no deal. Shuffle and set the deck face down, then take turns drawing from it. Look at the top card: keep it and discard the next card face down without looking, or discard it face down and keep the next card. When the deck runs out, you each have 13 cards.' : (n===3 ? 'Take out the 2 of clubs and deal 17 cards each.' : 'Deal all 52 cards, 13 to each player.'),
+      'Spades are always trump. Aces are high.',
+      'The deal passes to the left after each hand.'
+    ]);
+    $('r-bid').innerHTML = li([
+      'Starting left of the dealer, each player bids how many tricks they expect to take.',
+      partners ? 'Partners add their bids together. The team needs that many tricks between them.' : 'You need to take at least as many tricks as you bid.'
+    ].concat(rl.nil!=='off' ? [
+      'Bid nil to promise you’ll take no tricks at all: +'+nv+' if you pull it off, −'+nv+' if you take even one.' + (partners ? (rl.nilTricks==='help' ? ' Tricks a failed nil bidder takes still count toward their partner’s bid.' : ' Tricks a failed nil bidder takes don’t help their partner; they count as bags.') : '')
+    ] : []).concat(rl.nil!=='off' && rl.blind==='on' ? ['Blind nil is bid before looking at your cards and is worth double: ±'+(2*nv)+'.'] : []));
+    var rows = [['Make your bid','10 × bid'],['Each extra trick (a bag)','+1'],['Miss your bid','−10 × bid']];
+    if(rl.bags==='10') rows.push(['Every 10 bags','−100']);
+    if(rl.nil!=='off'){ rows.push(['Nil made / missed','±'+nv]); if(rl.blind==='on') rows.push(['Blind nil made / missed','±'+(2*nv)]); }
+    $('r-scoretable').innerHTML = rows.map(function(x){ return '<tr><td>'+x[0]+'</td><td>'+x[1]+'</td></tr>'; }).join('');
+    $('r-scorenote').textContent = 'Example: bid 4 and take 6 for 42 points and 2 bags. First '+(partners ? 'team' : 'player')+' to '+rl.target+' wins; if there’s a tie at the top, play another hand.';
+  }
+
+  // ----- Game menu -----
+  var menuBtn = $('gameMenuBtn'), menu = $('gameMenu'), menuWrap = menuBtn.parentNode;
+  function setMenu(open){
+    menu.hidden = !open; menuBtn.setAttribute('aria-expanded', String(open));
+    if(open){ var has = hasData(S); $('endGame').disabled = !has || isComplete(S); $('clearGame').disabled = !has; }
+  }
+  menuBtn.addEventListener('click', function(){ setMenu(menu.hidden); });
+  menu.addEventListener('click', function(e){ if(e.target.closest('button')) setMenu(false); });
+  window.addEventListener('click', function(e){ if(!menu.hidden && e.composedPath().indexOf(menuWrap)===-1) setMenu(false); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape' && !menu.hidden){ setMenu(false); menuBtn.focus(); } });
+
+  function startFresh(names, rl, f){ S = fresh(names, rl); S.first = f||0; save(); buildNames(); render(); renderRules(); }
+  $('endGame').addEventListener('click', function(){
+    var t = totalsOf(S), w = winnersOf(S), sides = sidesOf(S);
+    var who = w.length>1 ? w.map(function(k){ return sideName(S, sides[k]); }).join(' and ')+' tie' : sideName(S, sides[w[0]])+(sides[w[0]].length>1 ? ' win' : ' wins');
+    ASK('End the game now? '+who+' with '+fmtN(t[w[0]])+'.', function(){
+    syncHistory();
+    var h = loadH(); h.forEach(function(g){ if(g.id===S.id){ g.complete = true; g.endedEarly = true; } }); saveH(h);
+    startFresh(S.names, S.rules, S.first); showView('history');
+  });
+  });
+  $('clearGame').addEventListener('click', function(){
+    ASK('Clear this game? Its scores won’t be saved to History.', function(){
+    saveH(loadH().filter(function(g){ return g.id!==S.id; }));
+    startFresh(S.names, S.rules, S.first);
+  });
+  });
+
+  var setup = SETUP(R, {
+    houseKey:'spades-house', defaults:SP_DEFAULTS, official:SP_OFFICIAL, minPlayers:2, maxPlayers:4,
+    vars:'--su-bg:var(--surface);--su-ink:var(--ink);--su-muted:var(--muted);--su-line:var(--line);--su-accent:var(--felt);--su-chip:var(--now)',
+    defaultName:function(i){ return 'Player '+(i+1); },
+    schema:[
+      {key:'mode', label:'Teams', choices:[['partners','Partners (4 players)'],['cutthroat','Every player alone']]},
+      {key:'target', label:'Play to', choices:[['300','300'],['500','500']]},
+      {key:'nil', label:'Nil bid', choices:[['off','Not allowed'],['50','±50'],['100','±100']]},
+      {key:'blind', label:'Blind nil (worth double)', choices:[['off','Off'],['on','On']]},
+      {key:'nilTricks', label:'Tricks taken by a failed nil bidder', choices:[['bags','Count as bags only'],['help','Count toward partner’s bid']]},
+      {key:'bags', label:'Bags (extra tricks)', choices:[['10','10 bags = −100'],['off','No penalty']]}
+    ],
+    firstLabel:'Who deals first',
+    note:function(names, rl, f){
+      if(rl.mode==='partners' && names.length!==4) return names.length===2 ? 'Head to head: each player scores alone, and you draw your hands from the deck instead of dealing.' : 'Partners needs 4 players, so this game will be every player alone.';
+      if(rl.mode==='partners') return 'Partners sit across: '+names[0]+' & '+names[2]+' vs '+names[1]+' & '+names[3]+'. '+names[f||0]+' deals first.';
+      return names.length===2 ? 'Head to head: you draw your hands from the deck instead of dealing. '+names[f||0]+' draws first.' : names[f||0]+' deals first.';
+    },
+    onStart:function(names, rl, f){ startFresh(names, rl, f); showView('score'); },
+    onSave:function(names, rl, f){
+      var id = S.id, st = S.started;
+      S = fresh(names, rl); S.id = id; S.started = st; S.first = f||0;
+      save(); buildNames(); render(); renderRules();
+    }
+  });
+  $('newGame').addEventListener('click', function(){ setup.open('new', {names:S.names, rules:S.rules, first:S.first||0, hasScores:hasData(S)}); });
+  $('houseRules').addEventListener('click', function(){ setup.open(hasData(S) ? 'view' : 'edit', {names:S.names, rules:S.rules, first:S.first||0}); });
+
+  // ----- History -----
+  function gameTable(g){
+    var c = compute(g);
+    var h = '<div class="tscroll"><table class="gt"><thead><tr><th>Hand</th>' +
+      c.sides.map(function(side){ return '<th>'+esc(sideName(g, side))+'</th>'; }).join('') + '</tr></thead><tbody>';
+    g.hands.forEach(function(hd, i){
+      h += '<tr><td>'+(i+1)+'</td>' + c.sides.map(function(side, k){
+        var r = c.rows[i] && c.rows[i][k];
+        return '<td>'+(r ? fmtN(r.total)+' <small>'+r.took+'/'+r.bid+(r.pen ? ' bags '+fmtN(r.pen) : '')+'</small>' : '–')+'</td>';
+      }).join('') + '</tr>';
+    });
+    return h + '</tbody><tfoot><tr><td>Total</td>' + c.tot.map(function(v){ return '<td>'+fmtN(v)+'</td>'; }).join('') +
+      '</tr></tfoot></table></div><p class="gkey">Small numbers: tricks taken / bid (nil bids count as 0).</p>';
+  }
+  function resultLine(g){
+    if(!g.complete) return 'Unfinished game.';
+    var t = totalsOf(g), w = winnersOf(g), sides = sidesOf(g);
+    return (g.endedEarly ? 'Ended early. ' : '') + (w.length>1 ? 'Tie: '+w.map(function(k){ return sideName(g, sides[k]); }).join(' and ') : 'Winner: '+sideName(g, sides[w[0]])) + ' (' + fmtN(t[w[0]]) + ')';
+  }
+  function sortedH(){ return loadH().sort(function(a,b){ return b.started.localeCompare(a.started); }); }
+  function renderHistory(){
+    var list = $('historyList'), h = sortedH();
+    list.innerHTML = '';
+    $('printAll').disabled = $('downloadCsv').disabled = !h.length;
+    if(!h.length){ list.innerHTML = '<p class="empty-h">No games yet. Games save here automatically as you play.</p>'; return; }
+    h.forEach(function(g){
+      var t = totalsOf(g), w = winnersOf(g), sides = sidesOf(g);
+      var d = document.createElement('details'); d.className = 'game';
+      d.innerHTML = '<summary><div class="gmeta"><span>'+esc(fmtDate(g.started))+'</span>' +
+        (g.endedEarly ? '<span class="tag">Ended early</span>' : g.complete ? '' : '<span class="tag">'+(g.id===S.id ? 'In progress' : 'Unfinished')+'</span>') + '</div>' +
+        '<div class="gtots" style="grid-template-columns:repeat('+sides.length+',minmax(0,1fr))">' + t.map(function(v,k){
+          return '<div class="'+(g.complete && w.indexOf(k)>-1 ? 'win' : '')+'"><b>'+fmtN(v)+'</b><span>'+esc(sideName(g, sides[k]))+'</span></div>';
+        }).join('') + '</div></summary>' +
+        '<div class="gbody"><p class="grules">Rules: '+esc(summaryOf(rulesOf(g)))+'</p>' + gameTable(g) +
+        '<div class="gactions"><button class="btn alt" type="button" data-print>Print this game</button>' +
+        '<button class="btn warn" type="button" data-delete>Delete</button></div></div>';
+      d.querySelector('[data-print]').addEventListener('click', function(){ printGames([g]); });
+      d.querySelector('[data-delete]').addEventListener('click', function(){
+        ASK('Delete this game from History?', function(){
+        saveH(loadH().filter(function(x){ return x.id!==g.id; }));
+        if(g.id===S.id){ S = fresh(S.names, S.rules); try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} render(); }
+        renderHistory();
+      });
+  });
+      list.appendChild(d);
+    });
+  }
+  function printGames(games){
+    $('printArea').innerHTML = '<h1>Spades scores</h1>' + games.map(function(g){
+      return '<section class="pgame"><h2>'+esc(fmtDate(g.started))+'</h2><p>Rules: '+esc(summaryOf(rulesOf(g)))+'</p>'+gameTable(g)+'<p>'+esc(resultLine(g))+'</p></section>';
+    }).join('');
+    window.print();
+  }
+  function csvCell(v){ v = String(v); return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }
+  function downloadCsv(){
+    var lines = [];
+    sortedH().forEach(function(g){
+      var c = compute(g), n = g.names.length;
+      lines.push(['Game', fmtDate(g.started), g.endedEarly ? 'Ended early' : g.complete ? 'Complete' : 'Unfinished'].map(csvCell).join(','));
+      lines.push(['Rules', summaryOf(rulesOf(g))].map(csvCell).join(','));
+      var head = ['Hand','Dealer'];
+      c.sides.forEach(function(side){ var nm = sideName(g, side); head.push(nm+' bid', nm+' took', nm+' points'); });
+      lines.push(head.map(csvCell).join(','));
+      g.hands.forEach(function(hd, i){
+        var row = [i+1, g.names[((g.first||0) + i) % n]];
+        c.sides.forEach(function(_, k){ var r = c.rows[i] && c.rows[i][k]; row.push(r ? r.bid : '', r ? r.took : '', r ? r.total : ''); });
+        lines.push(row.map(csvCell).join(','));
+      });
+      var tot = ['Total',''];
+      c.tot.forEach(function(v){ tot.push('','',v); });
+      lines.push(tot.map(csvCell).join(','));
+      lines.push('');
+    });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([lines.join('\n')], {type:'text/csv'}));
+    a.download = 'spades-history-' + new Date().toISOString().slice(0,10) + '.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+  }
+
+  var VIEWS = ['rules','score','history'];
+  function showView(v){
+    VIEWS.forEach(function(k){
+      $('t-'+k).setAttribute('aria-selected', String(k===v));
+      $('v-'+k).hidden = k!==v;
+    });
+    $('totalsBar').hidden = v!=='score';
+    if(v==='history') renderHistory();
+    try{ localStorage.setItem('spades-tab', v); }catch(e){}
+    window.scrollTo(0,0);
+  }
+  VIEWS.forEach(function(k){ $('t-'+k).addEventListener('click', function(){ showView(k); }); });
+  $('printAll').addEventListener('click', function(){ printGames(sortedH()); });
+  $('downloadCsv').addEventListener('click', downloadCsv);
+
+  buildNames();
+  syncHistory();
+  render();
+  renderRules();
+  var t0 = 'rules'; try{ t0 = localStorage.getItem('spades-tab') || 'rules'; }catch(e){}
+  showView(VIEWS.indexOf(t0)>-1 ? t0 : 'rules');
+})();
+
+ })(rootSpades); }catch(e){ console.error('Spades failed to start', e); }
+
+  // ===== Game picker =====
+  var GAMES = {mt:'Mexican Train', hf:'Hand & Foot', oh:'Oh Heck', golf:'Golf', rummy:'Rummy', spades:'Spades'};
+  var pickBtn = document.getElementById('pickBtn'), pickList = document.getElementById('pickList');
+  var items = pickList.querySelectorAll('[data-game]');
+  function setPicker(open){ pickList.hidden = !open; pickBtn.setAttribute('aria-expanded', String(open)); if(open){ var cur = pickList.querySelector('[aria-checked="true"]'); if(cur) cur.focus(); } }
   function pickGame(g){
-    tabs.forEach(function(b){ b.setAttribute('aria-selected', String(b.dataset.game===g)); });
-    document.getElementById('host-mt').hidden = g!=='mt';
-    document.getElementById('host-hf').hidden = g!=='hf';
-    document.getElementById('host-oh').hidden = g!=='oh';
-    document.getElementById('host-golf').hidden = g!=='golf';
+    Object.keys(GAMES).forEach(function(k){ document.getElementById('host-'+k).hidden = k!==g; });
+    items.forEach(function(b){ b.setAttribute('aria-checked', String(b.dataset.game===g)); });
+    document.getElementById('pickName').textContent = GAMES[g];
     try{ localStorage.setItem('gamenight-game', g); }catch(e){}
     window.scrollTo(0,0);
   }
-  tabs.forEach(function(b){ b.addEventListener('click', function(){ pickGame(b.dataset.game); }); });
+  pickBtn.addEventListener('click', function(e){ e.stopPropagation(); setPicker(pickList.hidden); });
+  items.forEach(function(b){ b.addEventListener('click', function(){ pickGame(b.dataset.game); setPicker(false); pickBtn.focus(); }); });
+  document.addEventListener('click', function(e){ if(!pickList.hidden && !pickList.contains(e.target) && e.target!==pickBtn) setPicker(false); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape' && !pickList.hidden){ setPicker(false); pickBtn.focus(); } });
   var saved = 'mt'; try{ saved = localStorage.getItem('gamenight-game') || 'mt'; }catch(e){}
-  pickGame(['hf','oh','golf'].indexOf(saved)>-1 ? saved : 'mt');
+  pickGame(GAMES[saved] ? saved : 'mt');
 })();
 </script>
 </body>
