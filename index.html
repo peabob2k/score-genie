@@ -151,6 +151,16 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
 .tabs{display:grid;grid-template-columns:repeat(3,1fr);background:var(--line);border-radius:999px;padding:3px;margin:4px 0 10px}
 .tab{border:none;background:transparent;border-radius:999px;padding:7px 6px;font-weight:600;font-size:14px;color:var(--ink)}
 .tab[aria-selected="true"]{background:var(--felt);color:var(--felt-ink)}
+.gmenu{position:relative}
+.gmenu-list{position:absolute;right:0;top:calc(100% + 6px);z-index:30;background:var(--surface);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.22),0 0 0 1px var(--line);min-width:240px;padding:4px;display:flex;flex-direction:column}
+.gmenu-list[hidden]{display:none}
+.gmenu-list button{appearance:none;border:none;background:none;text-align:left;padding:10px 12px;border-radius:8px;font:600 15px Barlow,system-ui,sans-serif;color:var(--ink);cursor:pointer}
+.gmenu-list button small{display:block;font-weight:400;font-size:12px;color:var(--muted);margin-top:2px}
+.gmenu-list button:hover:not(:disabled){background:var(--now)}
+.gmenu-list button:disabled{opacity:.4;cursor:default}
+.gmenu-list button:focus-visible{outline:3px solid var(--gold);outline-offset:-3px}
+.gmenu-list .danger{color:var(--pip)}
+
 [hidden]{display:none!important}
 .rules-view section{background:var(--surface);border-radius:12px;box-shadow:var(--shadow);padding:12px 14px;margin-bottom:8px}
 .rules-view h2{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:21px;margin:0 0 6px;display:flex;align-items:center;gap:8px}
@@ -204,7 +214,14 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
 <div class="wrap">
   <header>
     <h1>Mexican Train</h1>
-    <button class="ghost" id="newGame" type="button">New game</button>
+    <div class="gmenu">
+      <button class="ghost" id="gameMenuBtn" type="button" aria-haspopup="true" aria-expanded="false">Game ▾</button>
+      <div class="gmenu-list" id="gameMenu" hidden>
+        <button type="button" id="newGame">New game<small>Keep this one in History and start fresh</small></button>
+        <button type="button" id="endGame">End game now<small>The current leader wins</small></button>
+        <button type="button" id="clearGame" class="danger">Clear game<small>Erase it without saving to History</small></button>
+      </div>
+    </div>
   </header>
 
   <div class="tabs" role="tablist" aria-label="View">
@@ -330,8 +347,8 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
 <template id="tpl-hf"><style>
 :host{
   --felt:#1f4d3a; --felt-deep:#173b2c;
-  --card:#fbf8f2; --ink:#1d1b19; --muted:#5f5a52;
-  --red:#b3261e; --rule:#e2dccf; --chip:#efe9dc; --gold:#e9c46a; --lead:#fff3cf;
+  --card:#FFFFFF; --ink:#14302A; --muted:#5B7169;
+  --red:#B3261E; --rule:#C9D7D0; --chip:#E4ECE7; --gold:#E0A526; --lead:#FBEFCF; --accent:#1F6B52;
   color-scheme: light;
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);
@@ -340,15 +357,15 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
 @media (prefers-color-scheme: dark){
   :host{
     --felt:#10261d; --felt-deep:#0b1c15;
-    --card:#22201d; --ink:#f1ece2; --muted:#b4ad9f;
-    --red:#ff7b6e; --rule:#3a3631; --chip:#2e2b27; --lead:#3a3220;
+    --card:#16302A; --ink:#E7F0EB; --muted:#93AAA1;
+    --red:#ff7b6e; --rule:#284840; --chip:#1D3D34; --lead:#3A3318; --accent:#2E8F6E;
     color-scheme: dark;
   }
 }
 :host([data-theme="dark"]){
   --felt:#10261d; --felt-deep:#0b1c15;
-  --card:#22201d; --ink:#f1ece2; --muted:#b4ad9f;
-  --red:#ff7b6e; --rule:#3a3631; --chip:#2e2b27; --lead:#3a3220;
+  --card:#16302A; --ink:#E7F0EB; --muted:#93AAA1;
+  --red:#ff7b6e; --rule:#284840; --chip:#1D3D34; --lead:#3A3318; --accent:#2E8F6E;
   color-scheme: dark;
 }
 *,*::before,*::after{box-sizing:inherit}
@@ -360,15 +377,26 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
   font-family:"Alegreya Sans", "Segoe UI", system-ui, sans-serif;
   font-size:17px; line-height:1.45;
 }
-.wrap{max-width:30rem; margin:0 auto; padding:1.25rem 0.9rem 2rem}
-header{color:#f4efe4; text-align:center; padding:0.5rem 0 0.9rem}
-h1{font-family:"Alegreya", Georgia, serif; font-weight:800; font-size:2.3rem; line-height:1; margin:0}
-header p{margin:0.4rem 0 0; opacity:0.85}
+.wrap{max-width:560px; margin:0 auto; padding:8px 14px 2rem}
+header{display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:2px; color:#f4efe4}
+h1{font-family:"Barlow Condensed",Barlow,sans-serif; font-weight:700; font-size:20px; line-height:1; margin:0; letter-spacing:.2px}
+.ghost{appearance:none; background:none; border:1px solid rgba(244,239,228,.45); border-radius:999px; padding:3px 10px; font:500 12px Barlow,system-ui,sans-serif; color:#f4efe4; cursor:pointer}
+.ghost:focus-visible{outline:3px solid var(--gold); outline-offset:2px}
 
 /* view switch */
-.tabs{display:grid; grid-template-columns:1fr 1fr 1fr; background:var(--felt-deep); border-radius:999px; padding:4px; margin:0 0 1rem}
-.tab{appearance:none; border:0; font:inherit; font-weight:700; padding:0.6rem; border-radius:999px; background:transparent; color:#f4efe4; cursor:pointer}
-.tab[aria-selected="true"]{background:var(--card); color:var(--ink)}
+.tabs{display:grid; grid-template-columns:1fr 1fr 1fr; background:var(--rule); border-radius:999px; padding:3px; margin:4px 0 10px}
+.tab{appearance:none; border:0; font:600 14px Barlow,system-ui,sans-serif; padding:7px 6px; border-radius:999px; background:transparent; color:var(--ink); cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent); color:#fff}
+.gmenu{position:relative}
+.gmenu-list{position:absolute;right:0;top:calc(100% + 6px);z-index:30;background:var(--card);border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.22),0 0 0 1px var(--rule);min-width:240px;padding:4px;display:flex;flex-direction:column}
+.gmenu-list[hidden]{display:none}
+.gmenu-list button{appearance:none;border:none;background:none;text-align:left;padding:10px 12px;border-radius:8px;font:600 15px Barlow,system-ui,sans-serif;color:var(--ink);cursor:pointer}
+.gmenu-list button small{display:block;font-weight:400;font-size:12px;color:var(--muted);margin-top:2px}
+.gmenu-list button:hover:not(:disabled){background:var(--chip)}
+.gmenu-list button:disabled{opacity:.4;cursor:default}
+.gmenu-list button:focus-visible{outline:3px solid var(--gold);outline-offset:-3px}
+.gmenu-list .danger{color:var(--red)}
+
 .tab:focus-visible{outline:3px solid var(--gold); outline-offset:2px}
 [hidden]{display:none !important}
 
@@ -409,7 +437,15 @@ tr:last-child td{border-bottom:0}
 .rules td:last-child{text-align:right; font-weight:700; white-space:nowrap}
 .neg{color:var(--red)}
 .note{color:var(--muted); font-size:0.92rem; margin:0.6rem 0 0}
-footer{color:#f4efe4; opacity:.8; text-align:center; font-size:0.9rem; margin-top:1rem}
+#v-rules section{border-radius:12px; padding:12px 14px; margin-bottom:8px; box-shadow:0 1px 0 rgba(0,0,0,.2); font-family:Barlow,system-ui,sans-serif; font-size:16px; line-height:1.4}
+#v-rules h2{font-family:"Barlow Condensed",Barlow,sans-serif; font-weight:700; font-size:21px; margin:0 0 6px; align-items:center; gap:8px}
+#v-rules h2 .suit{font-size:15px; line-height:1}
+#v-rules ul,#v-rules ol{padding-left:1.15rem}
+#v-rules li{margin:.3rem 0}
+#v-rules .note{font-size:14px; margin:.5rem 0 0}
+#v-rules td{padding:6px 0}
+#v-rules .rules td:last-child{font-family:"Barlow Condensed",sans-serif; font-size:18px}
+.rfoot{text-align:center; color:#f4efe4; opacity:.8; font-family:Barlow,system-ui,sans-serif; font-size:13px; margin:10px 0}
 
 /* scoreboard */
 .scorebar{position:sticky; top:env(safe-area-inset-top,0px); z-index:5; display:grid; grid-template-columns:34% repeat(3,1fr); align-items:center; background:var(--card); border-radius:14px; padding:0.6rem 1.1rem; margin-bottom:0.8rem; box-shadow:0 4px 10px rgba(0,0,0,.25)}
@@ -499,7 +535,14 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
 <div class="wrap">
   <header>
     <h1>Hand &amp; Foot</h1>
-    <p>3 players · 3 rounds · every player for themselves</p>
+    <div class="gmenu">
+      <button class="ghost" id="gameMenuBtn" type="button" aria-haspopup="true" aria-expanded="false">Game ▾</button>
+      <div class="gmenu-list" id="gameMenu" hidden>
+        <button type="button" id="reset">New game<small>Keep this one in History and start fresh</small></button>
+        <button type="button" id="endGame">End game now<small>The current leader wins</small></button>
+        <button type="button" id="clearGame" class="danger">Clear game<small>Erase it without saving to History</small></button>
+      </div>
+    </div>
   </header>
 
   <div class="tabs" role="tablist">
@@ -577,6 +620,7 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
       </table>
       <p class="note">Book score = books + 7s bonus + going out + beezer. Meld score = cards melded − cards still in hand and foot. Round score = book + meld. Highest total after round 3 wins.</p>
     </section>
+    <p class="rfoot">House rules vary — agree before the first deal.</p>
   </div>
 
   <!-- SCORE -->
@@ -590,7 +634,6 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
 
     <div id="sheets"></div>
 
-    <button class="btn" id="reset">Start a new game</button>
   </div>
 
   <!-- HISTORY -->
@@ -602,7 +645,6 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
     <div id="histList"></div>
   </div>
 
-  <footer>House rules vary — agree before the first deal.</footer>
 </div>
 <div id="printArea"></div>
 
@@ -812,6 +854,30 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
     state = fresh(state.names.slice(), state.pips); save(); buildNames(); render();
   });
 
+  // ----- Game menu -----
+  var menuBtn = $('gameMenuBtn'), menu = $('gameMenu'), menuWrap = menuBtn.parentNode;
+  function setMenu(open){
+    menu.hidden = !open; menuBtn.setAttribute('aria-expanded', String(open));
+    if(open){ var has = hasScores(state); $('endGame').disabled = !has || isComplete(state); $('clearGame').disabled = !has; }
+  }
+  menuBtn.addEventListener('click', function(){ setMenu(menu.hidden); });
+  menu.addEventListener('click', function(e){ if(e.target.closest('button')) setMenu(false); });
+  window.addEventListener('click', function(e){ if(!menu.hidden && e.composedPath().indexOf(menuWrap)===-1) setMenu(false); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape' && !menu.hidden){ setMenu(false); menuBtn.focus(); } });
+  $('endGame').addEventListener('click', function(){
+    var t = totalsOf(state), w = winnersOf(state);
+    var who = w.length>1 ? w.map(function(p){ return state.names[p]; }).join(' and ')+' tie' : state.names[w[0]]+' wins';
+    if(!confirm('End the game now? '+who+' with '+t[w[0]]+'.')) return;
+    syncHistory();
+    var h = loadHistory(); h.forEach(function(g){ if(g.id===state.id){ g.complete = true; g.endedEarly = true; } }); saveHistory(h);
+    state = fresh(state.names.slice(), state.pips); save(); buildNames(); render(); showView('history');
+  });
+  $('clearGame').addEventListener('click', function(){
+    if(!confirm('Clear this game? Its scores won’t be saved to History.')) return;
+    saveHistory(loadHistory().filter(function(g){ return g.id!==state.id; }));
+    state = fresh(state.names.slice(), state.pips); save(); buildNames(); render();
+  });
+
   // ----- History -----
   function gameTable(g){
     var t = totalsOf(g);
@@ -825,7 +891,7 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
   function resultLine(g){
     var t = totalsOf(g), w = winnersOf(g).map(function(p){ return g.names[p]; });
     if(!g.complete) return 'Unfinished game.';
-    return (w.length>1 ? 'Tie: '+w.join(' and ') : 'Winner: '+w[0]) + ' (' + t[winnersOf(g)[0]] + ')';
+    return (g.endedEarly ? 'Ended early. ' : '') + (w.length>1 ? 'Tie: '+w.join(' and ') : 'Winner: '+w[0]) + ' (' + t[winnersOf(g)[0]] + ')';
   }
   function sortedHistory(){ return loadHistory().sort(function(a,b){ return b.started.localeCompare(a.started); }); }
 
@@ -838,7 +904,7 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
       var t = totalsOf(g), w = winnersOf(g);
       var d = document.createElement('details'); d.className = 'game';
       d.innerHTML = '<summary><div class="gmeta"><span>'+esc(fmtDate(g.started))+'</span>' +
-        (g.complete ? '' : '<span class="tag">'+(g.id===state.id ? 'In progress' : 'Unfinished')+'</span>') + '</div>' +
+        (g.endedEarly ? '<span class="tag">Ended early</span>' : g.complete ? '' : '<span class="tag">'+(g.id===state.id ? 'In progress' : 'Unfinished')+'</span>') + '</div>' +
         '<div class="gtots">' + t.map(function(v,p){
           return '<div class="'+(g.complete && w.indexOf(p)>-1 ? 'win' : '')+'"><b>'+v+'</b><span>'+esc(g.names[p])+'</span></div>';
         }).join('') + '</div></summary>' +
@@ -868,7 +934,7 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
     var lines = [];
     sortedHistory().forEach(function(g){
       var t = totalsOf(g);
-      lines.push(['Game', fmtDate(g.started), g.complete ? 'Complete' : 'Unfinished'].map(csvCell).join(','));
+      lines.push(['Game', fmtDate(g.started), g.endedEarly ? 'Ended early' : g.complete ? 'Complete' : 'Unfinished'].map(csvCell).join(','));
       lines.push(['Round','Double'].concat(g.names).map(csvCell).join(','));
       g.scores.forEach(function(row,r){ lines.push([r+1, ROUNDS[r]].concat(row.map(function(v){ return v===null?'':v; })).map(csvCell).join(',')); });
       lines.push(['Total',''].concat(t).map(csvCell).join(','));
@@ -1099,7 +1165,7 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
   function resultLine(g){
     if(!g.complete) return 'Unfinished game.';
     const w=winnersOf(g), t=totalsOf(g);
-    return (w.length>1?'Tie: '+w.map(p=>g.names[p]).join(' and '):'Winner: '+g.names[w[0]])+' ('+fmt(t[w[0]])+')';
+    return (g.endedEarly?'Ended early. ':'')+(w.length>1?'Tie: '+w.map(p=>g.names[p]).join(' and '):'Winner: '+g.names[w[0]])+' ('+fmt(t[w[0]])+')';
   }
   const sortedH=()=>loadH().sort((a,b)=>b.started.localeCompare(a.started));
   function renderHistory(){
@@ -1111,7 +1177,7 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
       const t=totalsOf(g), w=winnersOf(g);
       const d=document.createElement('details'); d.className='hgame';
       d.innerHTML='<summary><div class="hmeta"><span>'+esc(fmtDate(g.started))+'</span>'+
-        (g.complete?'':'<span class="htag">'+(g.id===S.id?'In progress':'Unfinished')+'</span>')+'</div>'+
+        (g.endedEarly?'<span class="htag">Ended early</span>':g.complete?'':'<span class="htag">'+(g.id===S.id?'In progress':'Unfinished')+'</span>')+'</div>'+
         '<div class="htots">'+t.map((v,p)=>'<div class="'+(g.complete&&w.includes(p)?'win':'')+'"><b>'+fmt(v)+'</b><span>'+esc(g.names[p])+'</span></div>').join('')+'</div></summary>'+
         '<div class="hbody">'+gameTable(g)+'<div class="hgact"><button class="hbtn" type="button" data-print>Print this game</button><button class="hbtn del" type="button" data-delete>Delete</button></div></div>';
       d.querySelector('[data-print]').addEventListener('click',()=>printGames([g]));
@@ -1133,7 +1199,7 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
   function downloadCsv(){
     const lines=[];
     sortedH().forEach(g=>{
-      lines.push(['Game',fmtDate(g.started),g.complete?'Complete':'Unfinished'].map(csvCell).join(','));
+      lines.push(['Game',fmtDate(g.started),g.endedEarly?'Ended early':g.complete?'Complete':'Unfinished'].map(csvCell).join(','));
       lines.push(['Round','Line'].concat(g.names).map(csvCell).join(','));
       g.rounds.forEach((rd,r)=>{
         lines.push([r+1,'Books'].concat(rd.map(bookS)).map(csvCell).join(','));
@@ -1151,6 +1217,30 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
   }
   R.getElementById('hPrintAll').addEventListener('click',()=>printGames(sortedH()));
   R.getElementById('hCsv').addEventListener('click',downloadCsv);
+
+  /* ---- game menu ---- */
+  const menuBtn=R.getElementById('gameMenuBtn'), menu=R.getElementById('gameMenu'), menuWrap=menuBtn.parentNode;
+  function setMenu(open){
+    menu.hidden=!open; menuBtn.setAttribute('aria-expanded',String(open));
+    if(open){ const has=hasData(S); R.getElementById('endGame').disabled=!has||S.rounds.every(rd=>rd.some(c=>c.out)); R.getElementById('clearGame').disabled=!has; }
+  }
+  menuBtn.addEventListener('click',()=>setMenu(menu.hidden));
+  menu.addEventListener('click',e=>{ if(e.target.closest('button')) setMenu(false); });
+  window.addEventListener('click',e=>{ if(!menu.hidden && !e.composedPath().includes(menuWrap)) setMenu(false); });
+  window.addEventListener('keydown',e=>{ if(e.key==='Escape' && !menu.hidden){ setMenu(false); menuBtn.focus(); } });
+  R.getElementById('endGame').addEventListener('click',()=>{
+    const t=totalsOf(S), w=winnersOf(S);
+    const who=w.length>1 ? w.map(name).join(' and ')+' tie' : name(w[0])+' wins';
+    if(!confirm('End the game now? '+who+' with '+fmt(t[w[0]])+'.')) return;
+    syncHistory();
+    const h=loadH(); h.forEach(g=>{ if(g.id===S.id){ g.complete=true; g.endedEarly=true; } }); saveH(h);
+    const names=S.names; S=blank(); S.names=names; save(); build(); show('history');
+  });
+  R.getElementById('clearGame').addEventListener('click',()=>{
+    if(!confirm('Clear this game? Its scores won’t be saved to History.')) return;
+    saveH(loadH().filter(g=>g.id!==S.id));
+    const names=S.names; S=blank(); S.names=names; save(); build();
+  });
 
   /* ---- init ---- */
   build();
