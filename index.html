@@ -53,7 +53,15 @@ body{margin:0;background:#173b2c}
 #askYes.danger{background:#B3261E}
 .ask-actions button:focus-visible{outline:3px solid #e9c46a;outline-offset:2px}
 @media (prefers-color-scheme: dark){.ask-box{background:#16302A;color:#E7F0EB} #askNo{color:#E7F0EB;box-shadow:inset 0 0 0 1px #284840}}
-@media print{.bar,.ask-wrap{display:none!important} body{background:#fff}}
+.fx-toast{position:fixed;left:50%;top:calc(56px + env(safe-area-inset-top,0px));transform:translate(-50%,-12px);max-width:calc(100% - 32px);background:#14302A;color:#fff;padding:10px 18px;border-radius:999px;font:600 15px Barlow,system-ui,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.3);z-index:950;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;text-align:center}
+.fx-toast.show{opacity:1;transform:translate(-50%,0)}
+.fx-toast[hidden]{display:none}
+.fx-confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:940}
+.pick-list .pick-fx{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:6px 8px 0;padding-top:8px;border-top:1px solid #e2e8e4}
+.pick-list .fx-tg{display:inline-flex;border:1px solid #C9D7D0;background:transparent;color:#14302A;border-radius:999px;padding:6px 11px;font:600 13px Barlow,system-ui,sans-serif}
+.pick-list .fx-tg[aria-pressed="true"]{background:#1F6B52;border-color:#1F6B52;color:#fff}
+.pick-list .fx-tg[aria-pressed="true"]::after,.pick-list .fx-tg::after{content:none}
+@media print{.bar,.ask-wrap,.fx-toast{display:none!important} body{background:#fff}}
 </style>
 </head>
 <body>
@@ -68,9 +76,15 @@ body{margin:0;background:#173b2c}
     <button type="button" role="menuitemradio" data-game="golf"><svg class="pick-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.2c-1.9 2-4 3.4-4 5.3 0 1.3 1 2.2 2.2 2.2.6 0 1.1-.2 1.4-.6-.1 1-.5 1.8-1.2 2.4h3.2c-.7-.6-1.1-1.4-1.2-2.4.3.4.8.6 1.4.6 1.2 0 2.2-.9 2.2-2.2 0-1.9-2.1-3.3-4-5.3z" fill="currentColor"/></svg><span class="pick-txt">Golf<small>Cards · 4-card or 6-card</small></span></button>
     <button type="button" role="menuitemradio" data-game="rummy"><svg class="pick-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.2c-1.9 2-4 3.4-4 5.3 0 1.3 1 2.2 2.2 2.2.6 0 1.1-.2 1.4-.6-.1 1-.5 1.8-1.2 2.4h3.2c-.7-.6-1.1-1.4-1.2-2.4.3.4.8.6 1.4.6 1.2 0 2.2-.9 2.2-2.2 0-1.9-2.1-3.3-4-5.3z" fill="currentColor"/></svg><span class="pick-txt">Rummy<small>Cards · race to a target</small></span></button>
     <button type="button" role="menuitemradio" data-game="spades"><svg class="pick-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.2c-1.9 2-4 3.4-4 5.3 0 1.3 1 2.2 2.2 2.2.6 0 1.1-.2 1.4-.6-.1 1-.5 1.8-1.2 2.4h3.2c-.7-.6-1.1-1.4-1.2-2.4.3.4.8.6 1.4.6 1.2 0 2.2-.9 2.2-2.2 0-1.9-2.1-3.3-4-5.3z" fill="currentColor"/></svg><span class="pick-txt">Spades<small>Cards · bid and take tricks, 2–4 players</small></span></button>
+    <div class="pick-fx" role="group" aria-label="Sound and feedback">
+      <button type="button" class="fx-tg" data-fx="sound" aria-pressed="true">🔊 Sound</button>
+      <button type="button" class="fx-tg" data-fx="vibe" aria-pressed="true">📳 Vibrate</button>
+      <button type="button" class="fx-tg" data-fx="voice" aria-pressed="true">🗣️ Voice</button>
+    </div>
     <p class="pick-credit">Game Score Genie · made by Bob Peacock</p>
   </div>
 </div>
+<div class="fx-toast" id="fxToast" role="status" aria-live="polite" hidden></div>
 <div class="ask-wrap" id="askWrap" hidden><div class="ask-scrim"></div><div class="ask-box" role="alertdialog" aria-modal="true" aria-labelledby="askMsg"><p id="askMsg"></p><div class="ask-actions"><button type="button" id="askNo">Cancel</button><button type="button" id="askYes">OK</button></div></div></div>
 <div class="host" id="host-mt"></div>
 <div class="host" id="host-hf" hidden></div>
@@ -255,6 +269,9 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
 
 :host{display:block;padding-top:0!important}
 .app{min-height:100vh;min-height:100dvh}
+.pop{animation:gsgpop .7s ease}
+@keyframes gsgpop{0%{transform:scale(1)}35%{transform:scale(1.14)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion: reduce){.pop{animation:none}}
 </style><div class="app">
 <div class="wrap">
   <header>
@@ -505,6 +522,11 @@ tr:last-child td{border-bottom:0}
 .open{margin-left:auto; font-family:"Alegreya Sans",sans-serif; font-weight:500; font-size:0.95rem; color:var(--muted)}
 .starter{margin:-0.3rem 0 0.7rem; font-family:Barlow,system-ui,sans-serif; font-size:0.95rem; color:var(--muted)}
 .starter b{color:var(--ink); font-weight:600}
+.say{margin-left:6px; border:1px solid var(--rule); background:var(--chip); color:var(--ink); border-radius:999px; padding:3px 10px; font:600 13px Barlow,system-ui,sans-serif; cursor:pointer; vertical-align:middle; white-space:nowrap}
+.say:focus-visible,.leadbtn:focus-visible{outline:3px solid var(--gold); outline-offset:2px}
+.leadbtn{grid-column:1/-1; margin-top:0.55rem; border:none; border-radius:999px; padding:0.6rem 1rem; background:var(--gold); color:#1d1b19; font:700 15px Barlow,system-ui,sans-serif; cursor:pointer; animation:gsgpop .7s ease}
+.leadbtn[hidden]{display:none}
+@media (prefers-reduced-motion: reduce){.leadbtn{animation:none}}
 .open b{color:var(--ink)}
 .app::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:10; background:var(--felt-deep)}
 input{font:inherit; color:var(--ink); background:var(--chip); border:1px solid var(--rule); border-radius:8px; padding:0.45rem 0.5rem; width:100%; min-width:0}
@@ -580,6 +602,9 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
 
 :host{display:block;padding-top:0!important}
 .app{min-height:100vh;min-height:100dvh}
+.pop{animation:gsgpop .7s ease}
+@keyframes gsgpop{0%{transform:scale(1)}35%{transform:scale(1.14)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion: reduce){.pop{animation:none}}
 </style><div class="app">
 <div class="wrap">
   <header>
@@ -670,6 +695,7 @@ input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appear
       <div class="stand" id="s0"><input id="n0" aria-label="Player 1 name" placeholder="Player 1" maxlength="14"><div class="tot" id="tot0">0</div></div>
       <div class="stand" id="s1"><input id="n1" aria-label="Player 2 name" placeholder="Player 2" maxlength="14"><div class="tot" id="tot1">0</div></div>
       <div class="stand" id="s2"><input id="n2" aria-label="Player 3 name" placeholder="Player 3" maxlength="14"><div class="tot" id="tot2">0</div></div>
+      <button class="leadbtn" id="leadBtn" type="button" hidden></button>
     </div>
 
     <div id="sheets"></div>
@@ -866,6 +892,9 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
 
 :host{display:block;padding-top:0!important}
 .app{min-height:100vh;min-height:100dvh}
+.pop{animation:gsgpop .7s ease}
+@keyframes gsgpop{0%{transform:scale(1)}35%{transform:scale(1.14)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion: reduce){.pop{animation:none}}
 
 .cell{position:relative}
 .cell .sc{font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:24px;line-height:1}
@@ -1175,6 +1204,9 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
 
 :host{display:block;padding-top:0!important}
 .app{min-height:100vh;min-height:100dvh}
+.pop{animation:gsgpop .7s ease}
+@keyframes gsgpop{0%{transform:scale(1)}35%{transform:scale(1.14)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion: reduce){.pop{animation:none}}
 
 .cell{position:relative}
 .cell .sc{font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:24px;line-height:1}
@@ -1482,6 +1514,9 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
 
 :host{display:block;padding-top:0!important}
 .app{min-height:100vh;min-height:100dvh}
+.pop{animation:gsgpop .7s ease}
+@keyframes gsgpop{0%{transform:scale(1)}35%{transform:scale(1.14)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion: reduce){.pop{animation:none}}
 
 .cell{position:relative}
 .cell .sc{font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:24px;line-height:1}
@@ -1808,6 +1843,9 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
 
 :host{display:block;padding-top:0!important}
 .app{min-height:100vh;min-height:100dvh}
+.pop{animation:gsgpop .7s ease}
+@keyframes gsgpop{0%{transform:scale(1)}35%{transform:scale(1.14)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion: reduce){.pop{animation:none}}
 
 .cell{position:relative}
 .cell .sc{font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:24px;line-height:1}
@@ -1980,6 +2018,121 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
     document.getElementById('askNo').onclick = function(){ done(false); };
     w.querySelector('.ask-scrim').onclick = function(){ done(false); };
   }
+
+  // ===== Feedback: sounds, vibration, voice, toasts, confetti =====
+  var FX = (function(){
+    var prefs = {sound:true, vibe:true, voice:true};
+    try{ var sv = JSON.parse(localStorage.getItem('gsg-fx')); if(sv) prefs = Object.assign(prefs, sv); }catch(e){}
+    var ctx = null, noiseBuf = null;
+    function ac(){
+      if(!ctx){ var C = window.AudioContext || window.webkitAudioContext; if(!C) return null; ctx = new C(); }
+      if(ctx.state==='suspended') ctx.resume();
+      return ctx;
+    }
+    function out(c, vol){ var g = c.createGain(); g.gain.value = vol; g.connect(c.destination); return g; }
+    function tone(f, t, dur, o){
+      o = o || {}; var c = ac(); if(!c) return;
+      var s = c.currentTime + t, osc = c.createOscillator(), g = c.createGain();
+      osc.type = o.type || 'sine'; osc.frequency.setValueAtTime(f, s);
+      if(o.slide) osc.frequency.exponentialRampToValueAtTime(o.slide, s+dur);
+      if(o.vib){ var l = c.createOscillator(), lg = c.createGain(); l.frequency.value = o.vib; lg.gain.value = f*0.02; l.connect(lg); lg.connect(osc.frequency); l.start(s); l.stop(s+dur); }
+      var v = o.vol || 0.18, a = o.attack || 0.008;
+      g.gain.setValueAtTime(0.0001, s); g.gain.exponentialRampToValueAtTime(v, s+a);
+      g.gain.setValueAtTime(v, s + Math.max(a, dur*(o.hold||0.2)));
+      g.gain.exponentialRampToValueAtTime(0.0001, s+dur);
+      var node = osc;
+      if(o.lp){ var f2 = c.createBiquadFilter(); f2.type = 'lowpass'; f2.frequency.value = o.lp; osc.connect(f2); node = f2; }
+      node.connect(g); g.connect(c.destination);
+      osc.start(s); osc.stop(s+dur+0.05);
+    }
+    function noise(t, dur, o){
+      o = o || {}; var c = ac(); if(!c) return;
+      if(!noiseBuf){ noiseBuf = c.createBuffer(1, c.sampleRate, c.sampleRate); var d = noiseBuf.getChannelData(0); for(var i=0;i<d.length;i++) d[i] = Math.random()*2-1; }
+      var s = c.currentTime + t, src = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain();
+      src.buffer = noiseBuf; f.type = o.filter || 'bandpass'; f.Q.value = o.q || 1;
+      f.frequency.setValueAtTime(o.freq || 1500, s);
+      if(o.to) f.frequency.exponentialRampToValueAtTime(o.to, s+dur);
+      var v = o.vol || 0.2;
+      g.gain.setValueAtTime(0.0001, s); g.gain.exponentialRampToValueAtTime(v, s + (o.attack || 0.005));
+      g.gain.exponentialRampToValueAtTime(0.0001, s+dur);
+      src.connect(f); f.connect(g); g.connect(c.destination);
+      src.start(s, Math.random()*0.5); src.stop(s+dur+0.05);
+    }
+    var SOUNDS = {
+      tick: function(){ noise(0, 0.035, {freq:3200, q:2, vol:0.18}); tone(2400, 0, 0.025, {vol:0.04, type:'triangle'}); },
+      ping: function(){ tone(880, 0, 0.35, {vol:0.16}); tone(1760, 0, 0.25, {vol:0.05}); },
+      pingHigh: function(){ tone(1175, 0, 0.18, {vol:0.15}); tone(1568, 0.1, 0.35, {vol:0.15}); },
+      whoosh: function(){ noise(0, 0.55, {freq:300, to:3500, q:0.8, vol:0.28, attack:0.15}); },
+      shuffle: function(){ for(var i=0;i<9;i++) noise(i*0.055, 0.05, {freq:2500+Math.random()*1500, q:1.5, vol:0.2}); },
+      clatter: function(){
+        for(var i=0;i<14;i++){ var t = i*0.045 + Math.random()*0.03; tone(1800+Math.random()*1800, t, 0.05, {type:'square', vol:0.035, lp:5000}); noise(t, 0.04, {freq:2800, q:3, vol:0.12}); }
+      },
+      horn: function(){
+        [277, 349, 415, 523].forEach(function(f){ tone(f, 0, 1.1, {type:'sawtooth', vol:0.06, lp:1400, attack:0.06, hold:0.8}); });
+        [277, 349, 415, 523].forEach(function(f){ tone(f, 1.25, 0.55, {type:'sawtooth', vol:0.06, lp:1400, attack:0.05, hold:0.7}); });
+      },
+      whistle: function(){ tone(988, 0, 0.7, {type:'triangle', vol:0.12, vib:6, attack:0.05, hold:0.7}); tone(1319, 0, 0.7, {type:'triangle', vol:0.08, vib:6, attack:0.05, hold:0.7}); noise(0, 0.7, {freq:3000, q:4, vol:0.05, attack:0.05}); },
+      fanfare: function(){ [523, 659, 784, 1047].forEach(function(f,i){ tone(f, i*0.12, i===3 ? 0.6 : 0.16, {type:'triangle', vol:0.16}); }); tone(784, 0.48, 0.6, {type:'triangle', vol:0.08}); },
+      nailed: function(){ tone(660, 0, 0.12, {type:'triangle', vol:0.15}); tone(990, 0.1, 0.3, {type:'triangle', vol:0.15}); },
+      wahwah: function(){
+        [[392,0],[370,0.32],[349,0.64]].forEach(function(n){ tone(n[0], n[1], 0.3, {type:'sawtooth', vol:0.07, lp:900}); });
+        tone(330, 0.96, 0.9, {type:'sawtooth', vol:0.07, lp:900, vib:5, slide:300, hold:0.6});
+      },
+      thud: function(){ tone(110, 0, 0.35, {vol:0.3, slide:45}); noise(0, 0.2, {filter:'lowpass', freq:300, vol:0.25}); },
+      warn: function(){ tone(740, 0, 0.12, {type:'square', vol:0.05, lp:2000}); tone(740, 0.18, 0.12, {type:'square', vol:0.05, lp:2000}); },
+      chime: function(){ tone(1319, 0, 0.9, {vol:0.12, hold:0.05}); tone(1976, 0.08, 0.9, {vol:0.08, hold:0.05}); tone(2637, 0.16, 0.8, {vol:0.05, hold:0.05}); },
+      clap: function(){ for(var i=0;i<7;i++) noise(i*0.09 + Math.random()*0.03, 0.06, {freq:1400, q:0.9, vol:0.22}); },
+      leader: function(){ tone(784, 0, 0.12, {type:'triangle', vol:0.14}); tone(1047, 0.12, 0.35, {type:'triangle', vol:0.14}); }
+    };
+    var VIBES = {tick:8, ping:20, pingHigh:[20,40,30], whoosh:30, shuffle:[10,30,10,30,10], clatter:[10,20,10,20,10], horn:[200,100,120], whistle:120,
+      fanfare:[40,60,40,60,120], nailed:[20,40,40], wahwah:[60,80,60,80,200], thud:120, warn:[30,60,30], chime:30, clap:[15,40,15,40,15], leader:[40,60,80]};
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function play(name, delay){
+      setTimeout(function(){
+        try{ if(prefs.sound && SOUNDS[name]) SOUNDS[name](); }catch(e){}
+        try{ if(prefs.vibe && navigator.vibrate && VIBES[name]) navigator.vibrate(VIBES[name]); }catch(e){}
+      }, delay || 0);
+    }
+    function speak(text, delay, force){
+      if((!prefs.voice && !force) || !('speechSynthesis' in window)) return;
+      setTimeout(function(){ try{ speechSynthesis.cancel(); var u = new SpeechSynthesisUtterance(text); u.rate = 1.05; u.pitch = 1.1; speechSynthesis.speak(u); }catch(e){} }, delay || 0);
+    }
+    var toastTimer = null;
+    function toast(text){
+      var t = document.getElementById('fxToast'); if(!t) return;
+      t.textContent = text; t.hidden = false; t.classList.remove('show'); void t.offsetWidth; t.classList.add('show');
+      clearTimeout(toastTimer); toastTimer = setTimeout(function(){ t.classList.remove('show'); setTimeout(function(){ t.hidden = true; }, 300); }, 2600);
+    }
+    function confetti(){
+      if(reduceMotion) return;
+      var cv = document.createElement('canvas'), dpr = window.devicePixelRatio || 1, W = window.innerWidth, H = window.innerHeight;
+      cv.className = 'fx-confetti'; cv.width = W*dpr; cv.height = H*dpr; document.body.appendChild(cv);
+      var g = cv.getContext('2d'); g.scale(dpr, dpr);
+      var colors = ['#E0A526','#1F6B52','#B3261E','#2F6FCF','#8E44AD','#EE8A1C'], parts = [];
+      for(var i=0;i<140;i++) parts.push({x:W/2 + (Math.random()-0.5)*W*0.4, y:H*0.35, vx:(Math.random()-0.5)*9, vy:-Math.random()*11-3, r:Math.random()*Math.PI, vr:(Math.random()-0.5)*0.3, w:6+Math.random()*6, h:4+Math.random()*4, c:colors[i%colors.length]});
+      var start = performance.now();
+      (function frame(now){
+        var el = now - start; g.clearRect(0,0,W,H);
+        parts.forEach(function(p){ p.vy += 0.32; p.x += p.vx; p.y += p.vy; p.r += p.vr; g.save(); g.translate(p.x,p.y); g.rotate(p.r); g.globalAlpha = Math.max(0, 1 - el/2200); g.fillStyle = p.c; g.fillRect(-p.w/2,-p.h/2,p.w,p.h); g.restore(); });
+        if(el < 2200) requestAnimationFrame(frame); else cv.remove();
+      })(start);
+    }
+    function win(text){ play('fanfare'); confetti(); if(text){ toast(text); speak(text, 700); } }
+    function setPref(k, v){ prefs[k] = v; try{ localStorage.setItem('gsg-fx', JSON.stringify(prefs)); }catch(e){} }
+    // Tracks who leads, so games can celebrate a change of lead
+    function leadTracker(){
+      var last = null;
+      return function(key, el){
+        var changed = last!==null && key!==null && key!==last;
+        if(key!==null) last = key;
+        if(changed && el && !reduceMotion){ el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
+        return changed;
+      };
+    }
+    function streak(flags){ var n = 0; for(var i=flags.length-1;i>=0;i--){ if(flags[i]) n++; else break; } return n; }
+    return {play:play, speak:speak, toast:toast, confetti:confetti, win:win, prefs:prefs, setPref:setPref, leadTracker:leadTracker, streak:streak,
+      canVibe: !!navigator.vibrate, canSpeak: 'speechSynthesis' in window};
+  })();
 
   // ===== Shared game setup sheet =====
   var SETUP_CSS = [
@@ -2319,17 +2472,21 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
     renderTotals();
   }
 
+  var leadFx = FX.leadTracker();
   function renderTotals(){
     var totals = totalsOf(state), anyScore = hasScores(state);
     var min = Math.min.apply(null, totals);
     var el = $('totals'); el.innerHTML = '<div class="lbl">Total<br>low wins</div>';
+    var doneRows = state.scores.filter(function(row){ return row.every(function(v){ return v!==null; }); });
+    var fire = [0,1,2].map(function(p){ return FX.streak(doneRows.map(function(row){ return row[p]===Math.min.apply(null,row); })); });
     totals.forEach(function(t,p){
       var d = document.createElement('div');
       d.className = 'tot' + (anyScore && t===min ? ' lead' : '');
       d.innerHTML = '<b class="num">'+fmtN(t)+'</b><span></span>';
-      d.querySelector('span').textContent = state.names[p] + (anyScore && t>min ? ' +'+(t-min) : '');
+      d.querySelector('span').textContent = state.names[p] + (anyScore && t>min ? ' +'+(t-min) : '') + (fire[p]>=3 ? ' 🔥' : '');
       el.appendChild(d);
     });
+    var leads = el.querySelectorAll('.tot.lead'); leadFx(leads.length===1 ? Array.prototype.indexOf.call(el.querySelectorAll('.tot'), leads[0]) : null, leads[0]);
     var done = $('done');
     if(isComplete(state)){
       var w = winnersOf(state).map(function(p){ return state.names[p]; });
@@ -2358,7 +2515,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
     }).join('') + '</svg>';
   }
   function blankVal(){ return state.rules.blank==='25' ? 25 : 0; }
-  function addPick(v, k){ picks.push(v); kinds.push(k); $('typed').value=''; updateReadout(); }
+  function addPick(v, k){ FX.play('tick'); picks.push(v); kinds.push(k); $('typed').value=''; updateReadout(); }
   function buildPad(){
     var rl = state.rules, BLANK = blankVal();
     pad.innerHTML = '';
@@ -2416,8 +2573,11 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
   function closeSheet(){ sheetWrap.classList.remove('open'); editing = null; if(lastFocus) lastFocus.focus(); }
   function commit(value){
     if(!editing) return;
+    var was = isComplete(state);
     state.scores[editing.r][editing.p] = value;
     save(); closeSheet(); render(); checkTarget();
+    FX.play(value===null ? 'tick' : (value<=0 ? 'whistle' : 'ping'));
+    if(!was && isComplete(state)){ var ww = winnersOf(state); FX.win(ww.map(function(p){ return state.names[p]; }).join(' and ')+(ww.length>1 ? ' tie!' : ' wins!')); }
   }
   function checkTarget(){
     var tg = +state.rules.target;
@@ -2486,7 +2646,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
       {key:'target', label:'Offer to end the game at', choices:[['0','Off'],['150','150'],['200','200'],['300','300']]},
       {key:'start', label:'Who starts a round', choices:[['house','Go around for the double'],['official','Engine in the middle first']]}
     ],
-    onStart:function(names, rules){ setState(fresh(names, state.pips, rules)); save(); buildNames(); buildPad(); render(); renderRules(); showView('score'); },
+    onStart:function(names, rules){ FX.play('clatter'); FX.play('horn', 950); setState(fresh(names, state.pips, rules)); save(); buildNames(); buildPad(); render(); renderRules(); showView('score'); },
     onSave:function(names, rules){
       state.names = names; state.rules = rules; state.scores = emptyScores(+rules.rounds); setState(state);
       save(); buildNames(); buildPad(); render(); renderRules();
@@ -2733,6 +2893,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
             for(let q=0;q<3;q++){ if(q!=inp.dataset.p){ S.rounds[inp.dataset.r][q].out=false; const o=R.getElementById('c'+inp.dataset.r+'out'+q); if(o) o.checked=false; } }
           }
           c[inp.dataset.k]=inp.checked;
+          if(inp.checked) FX.play(inp.dataset.k==='beezer' ? 'chime' : (inp.dataset.k==='out' ? 'pingHigh' : 'tick'));
         } else c[inp.dataset.k]=inp.value;
         save(); refresh();
       });
@@ -2741,13 +2902,52 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
       const k=b.dataset.k, c=S.rounds[b.dataset.r][b.dataset.p], u=b.nextElementSibling;
       const paint=()=>{ const v=n(c[k]); b.textContent=v?String(v):'–'; b.setAttribute('aria-pressed', v?'true':'false'); u.disabled=!v; };
       paint();
-      b.addEventListener('click',()=>{ c[k]=String(n(c[k])+1); paint(); save(); refresh(); });
+      b.addEventListener('click',()=>{ FX.play('tick'); c[k]=String(n(c[k])+1); paint(); save(); refresh(); });
       u.addEventListener('click',()=>{ const v=Math.max(0,n(c[k])-1); c[k]=v?String(v):''; paint(); save(); refresh(); });
     });
     for(let i=0;i<3;i++) R.getElementById('n'+i).value=S.names[i];
     refresh();
   }
 
+  // A round counts as scored once someone went out and everyone's melded cards are in
+  const hfDone=rd=>rd.some(c=>c.out) && rd.every(c=>c.out || String(c.melded??'').trim()!=='');
+  // Who leads on fully scored rounds, and whether there's something new to announce
+  function leadState(){
+    const done=S.rounds.filter(hfDone);
+    if(!done.length) return null;
+    const t=[0,1,2].map(p=>done.reduce((a,rd)=>a+score(rd[p]),0)), m=Math.max(...t), w=[0,1,2].filter(p=>t[p]===m);
+    if(w.length!==1) return null;
+    return {lead:w[0], over:done.length===S.rounds.length};
+  }
+  function updateLeadBtn(){
+    const b=R.getElementById('leadBtn'), st=leadState();
+    const prev = S.announced!==undefined ? S.announced : (S.lastLeader!==undefined ? S.lastLeader : null);
+    if(!b) return;
+    if(!st){ b.hidden=true; return; }
+    if(st.over && S.announcedWin!==st.lead){ b.hidden=false; b.dataset.kind='win'; b.textContent='🏆 Announce the winner: '+name(st.lead); return; }
+    if(st.lead!==prev){ b.hidden=false; b.dataset.kind='lead'; b.textContent = prev==null ? '📣 '+name(st.lead)+' takes the lead' : '📣 Announce the new leader: '+name(st.lead); return; }
+    b.hidden=true;
+  }
+  R.getElementById('leadBtn').addEventListener('click',()=>{
+    const b=R.getElementById('leadBtn'), st=leadState(); if(!st) return;
+    const prev = S.announced!==undefined ? S.announced : (S.lastLeader!==undefined ? S.lastLeader : null);
+    if(b.dataset.kind==='win'){
+      S.announcedWin=st.lead; S.announced=st.lead;
+      FX.play('fanfare'); FX.confetti(); FX.toast(name(st.lead)+' wins!'); FX.speak(name(st.lead)+' wins!', 600, true);
+    } else {
+      const msg = prev==null ? name(st.lead)+' takes the lead!' : 'There’s a new leader! '+name(st.lead)+'!';
+      S.announced=st.lead;
+      FX.play('leader'); FX.toast(msg); FX.speak(msg, 250, true);
+      const el=R.getElementById('s'+st.lead); if(el){ el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop'); }
+    }
+    try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){}
+    updateLeadBtn();
+  });
+  R.getElementById('sheets').addEventListener('click',e=>{
+    const b=e.target.closest('[data-say]'); if(!b) return;
+    const r=+b.dataset.say, st=name(((S.first||0)+r)%3);
+    FX.speak(minsFor(S.rules)[r]+' to you, '+st+'.', 0, true);
+  });
   function refresh(){
     const totals=[0,0,0];
     S.rounds.forEach((rd,r)=>rd.forEach((c,p)=>{
@@ -2764,7 +2964,8 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
     });
     S.rounds.forEach((_,r)=>check(r));
     const e2=x=>String(x).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-    S.rounds.forEach((_,r)=>{ const st=name(((S.first||0)+r)%3), el=R.getElementById('st'+r); if(el) el.innerHTML='<b>“'+minsFor(S.rules)[r]+' to you, '+e2(st)+'.”</b> '+e2(st)+' starts this round.'; });
+    S.rounds.forEach((_,r)=>{ const st=name(((S.first||0)+r)%3), el=R.getElementById('st'+r); if(el) el.innerHTML='<b>“'+minsFor(S.rules)[r]+' to you, '+e2(st)+'.”</b> '+e2(st)+' starts this round.'+(FX.canSpeak ? ' <button type="button" class="say" data-say="'+r+'" aria-label="Say it out loud: '+minsFor(S.rules)[r]+' to you, '+e2(st)+'">📣 Announce</button>' : ''); });
+    updateLeadBtn();
   }
 
   for(let i=0;i<3;i++){
@@ -2920,7 +3121,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
       {key:'threes',label:'3s left in hand or foot',choices:[['100','−100'],['300','−300'],['500','−500']]},
       {key:'rounds',label:'Rounds and opening melds',choices:[['3','3: 50 · 100 · 150'],['4','4: 50 · 90 · 120 · 150']]}
     ],
-    onStart:(names,rl,f)=>{ S=blank(rl); S.names=names; S.first=f||0; save(); build(); renderRules(); show('score'); },
+    onStart:(names,rl,f)=>{ FX.play('shuffle'); FX.play('whoosh', 480); S=blank(rl); S.names=names; S.first=f||0; save(); build(); renderRules(); show('score'); },
     onSave:(names,rl,f)=>{ const id=S.id, st=S.started; S=blank(rl); S.id=id; S.started=st; S.names=names; S.first=f||0; save(); build(); renderRules(); }
   });
   R.getElementById('houseRules').addEventListener('click',()=>setup.open(hasData(S)?'view':'edit',{names:[0,1,2].map(name),rules:S.rules,first:S.first||0}));
@@ -2928,6 +3129,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
   /* ---- init ---- */
   build();
   renderRules();
+  updateLeadBtn();
   syncHistory();
   let t0='rules'; try{ t0=localStorage.getItem('hf-tab')||'rules'; }catch(e){}
   show(['rules','score','history'].includes(t0)?t0:'rules');
@@ -3072,6 +3274,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
     renderTotals();
   }
 
+  var leadFx = FX.leadTracker();
   function renderTotals(){
     var totals = totalsOf(S), anyScore = hasData(S), n = S.names.length;
     var max = Math.max.apply(null, totals);
@@ -3079,13 +3282,15 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
     el.style.gridTemplateColumns = cols(n);
     $('totalsBar').classList.toggle('many', n>4);
     el.innerHTML = '<div class="lbl">Total<br>high wins</div>';
+    var doneR = S.rounds.filter(roundDone), fire = S.names.map(function(_,p){ return FX.streak(doneR.map(function(rd){ return rd.bids[p]===rd.tricks[p]; })); });
     totals.forEach(function(t,p){
       var d = document.createElement('div');
       d.className = 'tot' + (anyScore && t===max ? ' lead' : '');
       d.innerHTML = '<b class="num">'+fmtN(t)+'</b><span></span>';
-      d.querySelector('span').textContent = S.names[p] + (anyScore && t<max ? ' −'+(max-t) : '');
+      d.querySelector('span').textContent = S.names[p] + (anyScore && t<max ? ' −'+(max-t) : '') + (fire[p]>=3 ? ' 🔥' : '');
       el.appendChild(d);
     });
+    var leads = el.querySelectorAll('.tot.lead'); leadFx(leads.length===1 ? Array.prototype.indexOf.call(el.querySelectorAll('.tot'), leads[0]) : null, leads[0]);
     var done = $('done');
     if(isComplete(S)){
       var w = winnersOf(S).map(function(p){ return S.names[p]; });
@@ -3142,6 +3347,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
           var dd = +btn.dataset.k.split(':')[1], cur = ed.vals[p];
           ed.vals[p] = cur==null ? 0 : Math.max(0, Math.min(cards, cur+dd));
           ed.focus = btn.dataset.k;
+          FX.play('tick');
           drawSheet();
         });
       });
@@ -3175,8 +3381,12 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
   $('save').addEventListener('click', function(){
     if(!ed) return;
     var rd = S.rounds[ed.r];
-    if(ed.phase==='bids') rd.bids = ed.vals.slice(); else rd.tricks = ed.vals.slice();
+    var was = isComplete(S), ph = ed.phase;
+    if(ph==='bids') rd.bids = ed.vals.slice(); else rd.tricks = ed.vals.slice();
     save(); closeSheet(); render();
+    if(ph==='bids') FX.play('ping');
+    else { var made = rd.bids.filter(function(b,p){ return b===rd.tricks[p]; }).length; if(made) FX.play('nailed'); if(made<rd.bids.length) FX.play('wahwah', made ? 450 : 0); }
+    if(!was && isComplete(S)){ var ww = winnersOf(S); FX.win(ww.map(function(p){ return S.names[p]; }).join(' and ')+(ww.length>1 ? ' tie!' : ' wins!')); }
   });
   $('clearRound').addEventListener('click', function(){
     if(!ed) return; ASK('Clear this round’s bids and tricks?', function(){
@@ -3254,7 +3464,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
       var n = names.length, cap = capFor(n);
       return (+rl.max>cap ? 'With '+n+' players, hands top out at '+cap+' cards. ' : '') + 'That’s '+seq(rl,n).length+' rounds. '+names[f||0]+' deals first.';
     },
-    onStart:function(names, rl, f){ startFresh(names, rl, f); showView('score'); },
+    onStart:function(names, rl, f){ FX.play('shuffle'); FX.play('whoosh', 480); startFresh(names, rl, f); showView('score'); },
     onSave:function(names, rl, f){
       var id = S.id, st = S.started;
       S = fresh(names, rl); S.id = id; S.started = st; S.first = f||0;
@@ -3481,6 +3691,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
     });
     renderTotals();
   }
+  var leadFx = FX.leadTracker();
   function renderTotals(){
     var totals = totalsOf(S), anyScore = hasData(S), n = S.names.length;
     var min = Math.min.apply(null, totals);
@@ -3488,13 +3699,16 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
     el.style.gridTemplateColumns = cols(n);
     $('totalsBar').classList.toggle('many', n>4);
     el.innerHTML = '<div class="lbl">Total<br>low wins</div>';
+    var doneH = S.holes.filter(function(row){ return row.every(function(v){ return v!=null; }); });
+    var fire = S.names.map(function(_,p){ return FX.streak(doneH.map(function(row){ return row[p]===Math.min.apply(null,row); })); });
     totals.forEach(function(t,p){
       var d = document.createElement('div');
       d.className = 'tot' + (anyScore && t===min ? ' lead' : '');
       d.innerHTML = '<b class="num">'+fmtN(t)+'</b><span></span>';
-      d.querySelector('span').textContent = S.names[p] + (anyScore && t>min ? ' +'+(t-min) : '');
+      d.querySelector('span').textContent = S.names[p] + (anyScore && t>min ? ' +'+(t-min) : '') + (fire[p]>=3 ? ' 🔥' : '');
       el.appendChild(d);
     });
+    var leads = el.querySelectorAll('.tot.lead'); leadFx(leads.length===1 ? Array.prototype.indexOf.call(el.querySelectorAll('.tot'), leads[0]) : null, leads[0]);
     var done = $('done');
     if(isComplete(S)){
       var w = winnersOf(S).map(function(p){ return S.names[p]; });
@@ -3506,7 +3720,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
   // ----- Score sheet: tap the cards left in front of the player -----
   var editing = null, picks = [], labels = [], lastFocus = null;
   function sum(){ return picks.reduce(function(a,b){ return a+b; },0); }
-  function addPick(v, l){ picks.push(v); labels.push(l); $('typed').value = ''; updateReadout(); }
+  function addPick(v, l){ FX.play('tick'); picks.push(v); labels.push(l); $('typed').value = ''; updateReadout(); }
   function updateReadout(){
     var typed = $('typed').value;
     $('readout').textContent = fmtN(typed!=='' ? (parseInt(typed,10)||0) : sum());
@@ -3552,8 +3766,11 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
   function closeSheet(){ $('sheetWrap').classList.remove('open'); editing = null; if(lastFocus){ try{ lastFocus.focus(); }catch(e){} } }
   function commit(v){
     if(!editing) return;
+    var was = isComplete(S);
     S.holes[editing.h][editing.p] = v;
     save(); closeSheet(); render();
+    FX.play(v===null ? 'tick' : (v<0 ? 'clap' : 'ping'));
+    if(!was && isComplete(S)){ var ww = winnersOf(S); FX.win(ww.map(function(p){ return S.names[p]; }).join(' and ')+(ww.length>1 ? ' tie!' : ' wins!')); }
   }
   $('undo').addEventListener('click', function(){ picks.pop(); labels.pop(); updateReadout(); });
   $('reset').addEventListener('click', function(){ picks = []; labels = []; $('typed').value = ''; updateReadout(); });
@@ -3655,7 +3872,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
       {key:'caller', label:'Player who ends the hole doesn’t have the lowest', choices:[['none','No penalty'],['double','Double their score'],['10','+10']]}
     ],
     note:function(names, rl){ return names.length>=5 ? 'With '+names.length+' players, shuffle two decks together.' : ''; },
-    onStart:function(names, rl){ startFresh(names, rl); showView('score'); },
+    onStart:function(names, rl){ FX.play('shuffle'); FX.play('whoosh', 480); startFresh(names, rl); showView('score'); },
     onSave:function(names, rl){
       var id = S.id, st = S.started;
       S = fresh(names, rl); S.id = id; S.started = st;
@@ -3879,6 +4096,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
     $('newHand').textContent = '+ Score hand '+(S.hands.length+1);
     renderTotals();
   }
+  var leadFx = FX.leadTracker();
   function renderTotals(){
     var totals = totalsOf(S), anyScore = hasData(S), n = S.names.length, rl = S.rules, hi = highWins(rl);
     var best = hi ? Math.max.apply(null, totals) : Math.min.apply(null, totals);
@@ -3886,13 +4104,15 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
     el.style.gridTemplateColumns = cols(n);
     $('totalsBar').classList.toggle('many', n>4);
     el.innerHTML = '<div class="lbl">'+(hi ? 'First to<br>'+rl.target : 'Ends at '+rl.target+'<br>low wins')+'</div>';
+    var fire = S.names.map(function(_,p){ return FX.streak(S.hands.map(function(hd){ return hd.out===p; })); });
     totals.forEach(function(t,p){
       var d = document.createElement('div');
       d.className = 'tot' + (anyScore && t===best ? ' lead' : '');
       d.innerHTML = '<b class="num">'+t+'</b><span></span>';
-      d.querySelector('span').textContent = S.names[p] + (anyScore && t!==best ? (hi ? ' −'+(best-t) : ' +'+(t-best)) : '');
+      d.querySelector('span').textContent = S.names[p] + (anyScore && t!==best ? (hi ? ' −'+(best-t) : ' +'+(t-best)) : '') + (fire[p]>=3 ? ' 🔥' : '');
       el.appendChild(d);
     });
+    var leads = el.querySelectorAll('.tot.lead'); leadFx(leads.length===1 ? Array.prototype.indexOf.call(el.querySelectorAll('.tot'), leads[0]) : null, leads[0]);
     var done = $('done');
     if(isComplete(S)){
       var w = winnersOf(S).map(function(p){ return S.names[p]; });
@@ -3976,7 +4196,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
       b.type = 'button'; b.className = 'half';
       b.innerHTML = '<span class="rk">'+c[0]+'</span>' + (c[0]==='A'||c[0]==='J'||c[0]==='Q'||c[0]==='K' ? '<small>'+c[1]+'</small>' : '');
       b.setAttribute('aria-label','Add '+c[0]+', '+c[1]);
-      b.addEventListener('click', function(){ $('typed').value=''; setVal(c[1], c[0]); });
+      b.addEventListener('click', function(){ FX.play('tick'); $('typed').value=''; setVal(c[1], c[0]); });
       pad.appendChild(b);
     });
     var z = document.createElement('button');
@@ -4004,8 +4224,11 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
   $('save').addEventListener('click', function(){
     if(!ed) return;
     var hd = ed.hd; hd.left[hd.out] = null;
+    var was = isComplete(S), dbl = hd.rummy && S.rules.rummy==='double';
     if(ed.isNew) S.hands.push(hd); else S.hands[ed.h] = hd;
     save(); closeSheet(); render();
+    FX.play(dbl ? 'chime' : 'ping');
+    if(!was && isComplete(S)){ var ww = winnersOf(S); FX.win(ww.map(function(p){ return S.names[p]; }).join(' and ')+(ww.length>1 ? ' tie!' : ' wins!')); }
   });
   $('erase').addEventListener('click', function(){
     if(!ed || ed.isNew) return; ASK('Delete hand '+(ed.h+1)+'?', function(){
@@ -4085,7 +4308,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
       {key:'rummy', label:'Going out all at once (rummy)', choices:[['none','No bonus'],['double','Doubles the hand']]}
     ],
     note:function(names, rl){ return 'Deal '+dealCount(names.length)+' cards each.' + (rl.scoring==='winner' ? ' High score wins.' : ' Low score wins.'); },
-    onStart:function(names, rl){ startFresh(names, rl); showView('score'); },
+    onStart:function(names, rl){ FX.play('shuffle'); FX.play('whoosh', 480); startFresh(names, rl); showView('score'); },
     onSave:function(names, rl){
       var id = S.id, st = S.started;
       S = fresh(names, rl); S.id = id; S.started = st;
@@ -4338,6 +4561,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
     $('newHand').textContent = last && !handDone(last) ? 'Enter tricks for hand '+S.hands.length : '+ Bids for hand '+(S.hands.length+1);
     renderTotals();
   }
+  var leadFx = FX.leadTracker();
   function renderTotals(){
     var c = compute(S), anyScore = c.rows.some(Boolean), n = c.sides.length, rl = S.rules;
     var max = Math.max.apply(null, c.tot);
@@ -4345,13 +4569,15 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
     el.style.gridTemplateColumns = cols(n);
     $('totalsBar').classList.toggle('many', n>3);
     el.innerHTML = '<div class="lbl">First to<br>'+rl.target+'</div>';
+    var doneRows = c.rows.filter(Boolean), fire = c.sides.map(function(_,k){ return FX.streak(doneRows.map(function(r){ return r[k].made!==false && r[k].total>0; })); });
     c.tot.forEach(function(t,k){
       var d = document.createElement('div');
       d.className = 'tot' + (anyScore && t===max ? ' lead' : '');
       d.innerHTML = '<b class="num">'+fmtN(t)+'</b><span></span>';
-      d.querySelector('span').innerHTML = esc(sideName(S, c.sides[k])) + (rl.bags==='10' ? '<small>'+c.bags[k]+' bag'+(c.bags[k]===1?'':'s')+'</small>' : '');
+      d.querySelector('span').innerHTML = esc(sideName(S, c.sides[k])) + (fire[k]>=3 ? ' 🔥' : '') + (rl.bags==='10' ? '<small>'+c.bags[k]+' bag'+(c.bags[k]===1?'':'s')+'</small>' : '');
       el.appendChild(d);
     });
+    var leads = el.querySelectorAll('.tot.lead'); leadFx(leads.length===1 ? Array.prototype.indexOf.call(el.querySelectorAll('.tot'), leads[0]) : null, leads[0]);
     var done = $('done');
     if(isComplete(S)){
       var w = winnersOf(S);
@@ -4405,6 +4631,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
           ed.vals[p] = cur==null ? 0 : Math.max(0, Math.min(max, cur+dd));
           if(isB && ed.vals[p]!==0) hd.blind[p] = false;
           ed.focus = btn.dataset.k;
+          FX.play('tick');
           drawSheet();
         });
       });
@@ -4433,11 +4660,19 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
   $('phTricks').addEventListener('click', function(){ if(!ed) return; ed.phase = 'tricks'; loadVals(); drawSheet(); });
   $('save').addEventListener('click', function(){
     if(!ed) return;
-    var hd = ed.hd;
+    var hd = ed.hd, ph = ed.phase, hidx = ed.h, was = isComplete(S);
     if(ed.phase==='bids'){ hd.bids = ed.vals.slice(); hd.bids.forEach(function(v,p){ if(!(S.rules.nil!=='off' && v===0)) hd.blind[p] = false; }); }
     else hd.tricks = ed.vals.slice();
     if(ed.isNew) S.hands.push(hd); else S.hands[ed.h] = hd;
     save(); closeSheet(); render();
+    if(ph==='bids') FX.play('ping');
+    else {
+      var cc = compute(S), row = cc.rows[hidx] || [];
+      var set = row.some(function(r){ return r && r.made===false; }), pen = row.some(function(r){ return r && r.pen<0; });
+      FX.play(set ? 'thud' : 'nailed');
+      if(pen || (S.rules.bags==='10' && cc.bags.some(function(b){ return b>=7; }))) FX.play('warn', 500);
+    }
+    if(!was && isComplete(S)){ var w2 = winnersOf(S), sd = sidesOf(S); FX.win(sideName(S, sd[w2[0]])+(sd[w2[0]].length>1 ? ' win!' : ' wins!')); }
   });
   $('clearRound').addEventListener('click', function(){
     if(!ed || ed.isNew) return; ASK('Delete hand '+(ed.h+1)+'?', function(){
@@ -4523,7 +4758,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
       if(rl.mode==='partners') return 'Partners sit across: '+names[0]+' & '+names[2]+' vs '+names[1]+' & '+names[3]+'. '+names[f||0]+' deals first.';
       return names.length===2 ? 'Head to head: you draw your hands from the deck instead of dealing. '+names[f||0]+' draws first.' : names[f||0]+' deals first.';
     },
-    onStart:function(names, rl, f){ startFresh(names, rl, f); showView('score'); },
+    onStart:function(names, rl, f){ FX.play('shuffle'); FX.play('whoosh', 480); startFresh(names, rl, f); showView('score'); },
     onSave:function(names, rl, f){
       var id = S.id, st = S.started;
       S = fresh(names, rl); S.id = id; S.started = st; S.first = f||0;
@@ -4656,6 +4891,16 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
   items.forEach(function(b){ b.addEventListener('click', function(){ pickGame(b.dataset.game); setPicker(false); pickBtn.focus(); }); });
   document.addEventListener('click', function(e){ if(!pickList.hidden && !pickList.contains(e.target) && e.target!==pickBtn) setPicker(false); });
   document.addEventListener('keydown', function(e){ if(e.key==='Escape' && !pickList.hidden){ setPicker(false); pickBtn.focus(); } });
+  pickList.querySelectorAll('[data-fx]').forEach(function(b){
+    var k = b.dataset.fx;
+    if((k==='vibe' && !FX.canVibe) || (k==='voice' && !FX.canSpeak)){ b.hidden = true; return; }
+    b.setAttribute('aria-pressed', String(!!FX.prefs[k]));
+    b.addEventListener('click', function(e){
+      e.stopPropagation();
+      FX.setPref(k, !FX.prefs[k]); b.setAttribute('aria-pressed', String(FX.prefs[k]));
+      if(FX.prefs[k]){ if(k==='sound') FX.play('ping'); if(k==='vibe') FX.play('tick'); if(k==='voice') FX.speak('Voice is on'); }
+    });
+  });
   var saved = 'mt'; try{ saved = localStorage.getItem('gamenight-game') || 'mt'; }catch(e){}
   pickGame(GAMES[saved] ? saved : 'mt');
 
