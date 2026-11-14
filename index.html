@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mexican Train scorecard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E4ECE7; --surface:#FFFFFF; --ink:#14302A; --muted:#5B7169; --line:#C9D7D0;
+  --felt:#1F6B52; --felt-ink:#FFFFFF; --tile:#FBFAF6; --tile-ink:#14302A; --pip:#B3261E;
+  --gold:#E0A526; --gold-soft:#FBEFCF; --now:#D7EBE1;
+  --shadow:0 1px 0 rgba(20,48,42,.12), 0 2px 6px rgba(20,48,42,.08);
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E211B; --surface:#16302A; --ink:#E7F0EB; --muted:#93AAA1; --line:#284840;
+    --felt:#2E8F6E; --felt-ink:#FFFFFF; --tile:#EDEBE3; --tile-ink:#14302A; --pip:#B3261E;
+    --gold:#E9B444; --gold-soft:#3A3318; --now:#1D3D34;
+    --shadow:0 1px 0 rgba(0,0,0,.4);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E211B; --surface:#16302A; --ink:#E7F0EB; --muted:#93AAA1; --line:#284840;
+  --felt:#2E8F6E; --felt-ink:#FFFFFF; --tile:#EDEBE3; --tile-ink:#14302A; --pip:#B3261E;
+  --gold:#E9B444; --gold-soft:#3A3318; --now:#1D3D34;
+  --shadow:0 1px 0 rgba(0,0,0,.4);
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Barlow,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.4;-webkit-tap-highlight-color:transparent}
+button,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.num{font-family:"Barlow Condensed",Barlow,system-ui,sans-serif;font-variant-numeric:tabular-nums}
+
+.wrap{max-width:560px;margin:0 auto;padding:8px 14px 140px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:2px}
+h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20px;line-height:1;margin:0;letter-spacing:.2px}
+.ghost{background:none;border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-weight:500;font-size:12px;color:var(--muted)}
+
+.grid{display:grid;grid-template-columns:64px repeat(3,1fr);gap:6px;align-items:stretch}
+.names input{width:100%;min-width:0;border:none;border-bottom:2px solid var(--line);background:transparent;padding:6px 2px;font-weight:600;font-size:17px;text-align:center;border-radius:0}
+.names input:focus{outline:none;border-bottom-color:var(--felt)}
+.names{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5;padding:6px 0 8px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+
+/* Round tile: a double domino */
+.tile{display:flex;flex-direction:column;align-items:center;justify-content:center;width:40px;margin:0 auto;background:var(--tile);color:var(--tile-ink);border-radius:7px;box-shadow:inset 0 0 0 1.5px rgba(20,48,42,.35);height:100%;min-height:58px}
+.tile span{flex:1;display:flex;align-items:center;justify-content:center;font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:18px;line-height:1;width:100%}
+.tile i{display:block;width:70%;height:1.5px;background:rgba(20,48,42,.35)}
+.row.now .tile{box-shadow:inset 0 0 0 2px var(--pip)}
+.row.now .tile span{color:var(--pip)}
+
+.cell{width:100%;min-height:58px;border:none;border-radius:10px;background:var(--surface);box-shadow:var(--shadow);font-family:"Barlow Condensed",sans-serif;font-weight:600;font-size:26px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.cell small{font-family:Barlow,sans-serif;font-size:11px;font-weight:500;color:var(--muted);margin-top:3px}
+.cell.empty{color:var(--muted);font-size:15px;font-weight:500;font-family:Barlow,sans-serif;background:transparent;box-shadow:inset 0 0 0 1.5px var(--line)}
+.row.now .cell.empty{background:var(--now);box-shadow:none;color:var(--ink)}
+.cell.zero{color:var(--felt)}
+.row{margin-bottom:6px}
+
+/* Totals */
+.totals{position:fixed;left:0;right:0;bottom:0;background:var(--felt);color:var(--felt-ink);padding:10px 14px calc(12px + env(safe-area-inset-bottom,0px));z-index:20}
+.totals .grid{max-width:532px;margin:0 auto}
+.totals .lbl{font-size:13px;font-weight:500;align-self:center;text-align:center;opacity:.85;line-height:1.15}
+.tot{text-align:center;border-radius:10px;padding:6px 2px}
+.tot b{display:block;font-family:"Barlow Condensed",sans-serif;font-size:32px;font-weight:700;line-height:1}
+.tot span{display:block;font-size:12px;opacity:.85;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tot.lead{background:var(--gold);color:#2A1E00}
+.tot.lead span{opacity:1}
+
+/* Sheet */
+.scrim{position:fixed;inset:0;background:rgba(6,20,16,.5);z-index:30;display:none}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:31;background:var(--surface);border-radius:18px 18px 0 0;padding:10px 14px calc(12px + env(safe-area-inset-bottom,0px));max-width:560px;margin:0 auto;transform:translateY(105%);transition:transform .22s ease;max-height:92vh;overflow:auto}
+.open .scrim{display:block}
+.open .sheet{transform:none}
+@media (prefers-reduced-motion: reduce){.sheet{transition:none}}
+.sheet-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.sheet h2{margin:0;font-size:15px;font-weight:600}
+.sheet .sub{color:var(--muted);font-size:13px}
+.readout{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:4px 0 2px;border-bottom:1px solid var(--line);padding-bottom:6px}
+.readout b{font-family:"Barlow Condensed",sans-serif;font-size:40px;font-weight:700;line-height:.9}
+.trail{color:var(--muted);font-size:14px;text-align:right;flex:1;min-height:20px;overflow-wrap:anywhere}
+.hint{font-size:13px;color:var(--muted);margin:0}
+.view{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:6px 0 8px}
+.seg{display:inline-flex;flex-shrink:0;border:1px solid var(--line);border-radius:999px;padding:2px}
+.seg button{border:none;background:none;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:500;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--felt);color:var(--felt-ink)}
+.pad{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.half{aspect-ratio:1/1;border:none;border-radius:10px;background:var(--tile);color:var(--tile-ink);box-shadow:inset 0 0 0 1.5px rgba(20,48,42,.3),0 2px 0 rgba(20,48,42,.18);font-family:"Barlow Condensed",sans-serif;font-weight:700;font-size:26px}
+.half:active{transform:translateY(1px);box-shadow:inset 0 0 0 1.5px rgba(20,48,42,.3)}
+.half.blank{font-size:15px;font-weight:600}
+.half small{display:block;font-family:Barlow,sans-serif;font-size:11px;font-weight:500;opacity:.7;margin-top:2px}
+.half{position:relative}
+.half svg{display:block;width:66%;height:66%;margin:auto;transform:translateY(10%)}
+.half .corner{position:absolute;top:3px;left:5px;font-family:"Barlow Condensed",sans-serif;font-size:16px;font-weight:700;line-height:1;opacity:.75}
+.half svg circle{fill:var(--tile-ink)}
+.tools{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.tools button{border:1px solid var(--line);background:transparent;border-radius:10px;padding:10px 6px;font-weight:500;font-size:15px}
+.typed{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:14px;color:var(--muted)}
+.typed input{flex:1;min-width:0;border:1px solid var(--line);background:transparent;border-radius:10px;padding:9px 12px;font-size:17px;color:var(--ink)}
+.actions{display:grid;grid-template-columns:1fr 2fr;gap:8px;margin-top:14px}
+.actions button{border:none;border-radius:12px;padding:14px;font-weight:600;font-size:16px}
+.cancel{background:transparent;box-shadow:inset 0 0 0 1px var(--line)}
+.save{background:var(--felt);color:var(--felt-ink)}
+.out{display:block;width:100%;margin-top:8px;border:none;border-radius:12px;padding:12px;font-weight:600;background:var(--now);color:var(--ink)}
+.clearscore{display:block;margin:10px auto 0;background:none;border:none;color:var(--pip);font-size:14px;font-weight:500;padding:6px}
+
+.done{margin:14px 0 0;padding:14px;border-radius:12px;background:var(--gold-soft);text-align:center;font-weight:600;display:none}
+
+.hbtns{display:flex;gap:6px}
+.panel{position:fixed;inset:0;z-index:40;background:var(--bg);overflow:auto;display:none;padding:calc(8px + env(safe-area-inset-top,0px)) 14px calc(24px + env(safe-area-inset-bottom,0px))}
+.panel.show{display:block}
+.panel-in{max-width:560px;margin:0 auto}
+.panel-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.panel-bar h2{font-family:"Barlow Condensed",Barlow,sans-serif;font-size:22px;font-weight:700;margin:0}
+.hactions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.btn{border:none;border-radius:10px;padding:11px 8px;font-weight:600;font-size:15px;background:var(--felt);color:var(--felt-ink)}
+.btn.alt{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
+.btn.warn{background:transparent;color:var(--pip);box-shadow:inset 0 0 0 1px var(--line)}
+.empty-h{color:var(--muted);text-align:center;padding:30px 10px}
+.game{background:var(--surface);border-radius:12px;box-shadow:var(--shadow);margin-bottom:8px;overflow:hidden}
+.game summary{list-style:none;padding:10px 12px;cursor:pointer}
+.game summary::-webkit-details-marker{display:none}
+.gmeta{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--muted);margin-bottom:6px}
+.tag{font-size:12px;font-weight:600;color:var(--pip)}
+.gtots{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.gtots div{text-align:center;border-radius:8px;padding:4px 2px}
+.gtots b{display:block;font-family:"Barlow Condensed",sans-serif;font-size:24px;line-height:1.05}
+.gtots span{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gtots .win{background:var(--gold-soft)}
+.gbody{padding:0 12px 12px}
+.gt{width:100%;border-collapse:collapse;font-size:14px;margin:4px 0 10px}
+.gt th,.gt td{padding:5px 4px;text-align:center;border-bottom:1px solid var(--line)}
+.gt th{font-weight:600;font-size:13px;color:var(--muted)}
+.gt td{font-family:"Barlow Condensed",sans-serif;font-size:17px}
+.gt tfoot td{font-weight:700;border-bottom:none;font-size:19px}
+.gactions{display:grid;grid-template-columns:2fr 1fr;gap:8px}
+.done button{margin-top:8px}
+#printArea{display:none}
+@media print{
+  body{background:#fff!important;color:#000!important}
+  body::before,.wrap,.totals,#sheetWrap,.panel{display:none!important}
+  #printArea{display:block;font-family:Barlow,system-ui,sans-serif;color:#000}
+  #printArea h1{font-size:20px;margin:0 0 12px}
+  .pgame{break-inside:avoid;page-break-inside:avoid;margin-bottom:22px}
+  .pgame h2{font-size:15px;margin:0 0 6px}
+  .pgame .gt th,.pgame .gt td{border-bottom:1px solid #999;color:#000}
+  .pgame p{margin:4px 0 0;font-size:13px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Mexican Train</h1>
+    <div class="hbtns">
+      <button class="ghost" id="openHistory" type="button">History</button>
+      <button class="ghost" id="newGame" type="button">New game</button>
+    </div>
+  </header>
+
+  <div class="grid names" id="names">
+    <div></div>
+  </div>
+
+  <div id="rows"></div>
+  <div class="done" id="done"><div id="doneText"></div></div>
+</div>
+
+<div class="totals" aria-live="polite">
+  <div class="grid" id="totals"></div>
+</div>
+
+<div id="sheetWrap">
+  <div class="scrim" id="scrim"></div>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <div class="sheet-head">
+      <h2 id="sheetTitle">Player</h2>
+      <span class="sub" id="sheetSub">Round</span>
+    </div>
+    <div class="readout">
+      <b class="num" id="readout">0</b>
+      <div class="trail" id="trail"></div>
+    </div>
+    <div class="view">
+      <p class="hint">Tap each half of every tile left in the hand. Blanks count 25.</p>
+      <div class="seg" role="group" aria-label="Keypad style">
+        <button type="button" id="viewNum" aria-pressed="true">Numbers</button>
+        <button type="button" id="viewPip" aria-pressed="false">Pips</button>
+      </div>
+    </div>
+    <div class="pad" id="pad"></div>
+    <div class="tools">
+      <button type="button" id="undo">Undo</button>
+      <button type="button" id="reset">Clear</button>
+    </div>
+    <label class="typed">Or type it
+      <input type="number" inputmode="numeric" min="0" id="typed" placeholder="Total">
+    </label>
+    <button class="out" type="button" id="wentOut">Went out — score 0</button>
+    <div class="actions">
+      <button class="cancel" type="button" id="cancel">Cancel</button>
+      <button class="save" type="button" id="save">Save score</button>
+    </div>
+    <button class="clearscore" type="button" id="erase">Remove this score</button>
+  </div>
+</div>
+
+<div class="panel" id="history" role="dialog" aria-modal="true" aria-labelledby="historyTitle">
+  <div class="panel-in">
+    <div class="panel-bar">
+      <h2 id="historyTitle">Game history</h2>
+      <button class="ghost" type="button" id="closeHistory">Close</button>
+    </div>
+    <div class="hactions">
+      <button class="btn" type="button" id="printAll">Print all</button>
+      <button class="btn alt" type="button" id="downloadCsv">Download CSV</button>
+    </div>
+    <div id="historyList"></div>
+  </div>
+</div>
+
+<div id="printArea"></div>
+
+<script>
+(function(){
+  var KEY = 'mexican-train-v1', HKEY = 'mexican-train-history-v1';
+  var ROUNDS = [12,11,10,9,8,7,6,5,4,3,2,1,0];
+  var BLANK = 25;
+
+  function newId(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+  function emptyScores(){ return ROUNDS.map(function(){ return [null,null,null]; }); }
+  function fresh(names, pips){
+    return { id:newId(), started:new Date().toISOString(), names: names || ['Player 1','Player 2','Player 3'], scores: emptyScores(), pips: !!pips };
+  }
+  function load(){
+    try{ var s = JSON.parse(localStorage.getItem(KEY)); if(s && s.scores && s.scores.length===13) return s; }catch(e){}
+    return null;
+  }
+  var state = load() || fresh();
+  if(!state.id){ state.id = newId(); state.started = new Date().toISOString(); }
+
+  function loadHistory(){
+    try{ var h = JSON.parse(localStorage.getItem(HKEY)); if(Array.isArray(h)) return h; }catch(e){}
+    return [];
+  }
+  function saveHistory(h){ try{ localStorage.setItem(HKEY, JSON.stringify(h)); }catch(e){} }
+
+  function hasScores(g){ return g.scores.some(function(row){ return row.some(function(v){ return v!==null; }); }); }
+  function isComplete(g){ return g.scores.every(function(row){ return row.every(function(v){ return v!==null; }); }); }
+  function totalsOf(g){ return [0,1,2].map(function(p){ return g.scores.reduce(function(a,row){ return a + (row[p]||0); },0); }); }
+  function winnersOf(g){ var t = totalsOf(g), m = Math.min.apply(null,t); return [0,1,2].filter(function(p){ return t[p]===m; }); }
+
+  // Every change to the current game is mirrored into history
+  function syncHistory(){
+    var h = loadHistory();
+    var i = -1; h.forEach(function(g,k){ if(g.id===state.id) i = k; });
+    if(!hasScores(state)){ if(i>-1) h.splice(i,1); }
+    else {
+      var g = { id:state.id, started:state.started, names:state.names.slice(), scores:JSON.parse(JSON.stringify(state.scores)), complete:isComplete(state) };
+      if(i>-1) h[i] = g; else h.push(g);
+    }
+    saveHistory(h);
+  }
+  function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} syncHistory(); }
+
+  var $ = function(id){ return document.getElementById(id); };
+  function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function fmtDate(iso){
+    var d = new Date(iso);
+    return d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric',year:'numeric'}) + ', ' + d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
+  }
+
+  // Name inputs
+  var namesEl = $('names'), nameInputs = [];
+  function buildNames(){
+    nameInputs.forEach(function(inp){ inp.remove(); }); nameInputs = [];
+    state.names.forEach(function(n,i){
+      var inp = document.createElement('input');
+      inp.value = n; inp.setAttribute('aria-label','Player '+(i+1)+' name'); inp.maxLength = 14;
+      inp.addEventListener('focus', function(){ inp.select(); });
+      inp.addEventListener('input', function(){ state.names[i] = inp.value || ('Player '+(i+1)); save(); renderTotals(); });
+      namesEl.appendChild(inp); nameInputs.push(inp);
+    });
+  }
+  buildNames();
+
+  function currentRound(){
+    for(var r=0;r<13;r++){ if(state.scores[r].some(function(v){ return v===null; })) return r; }
+    return -1;
+  }
+
+  function render(){
+    var rows = $('rows'); rows.innerHTML = '';
+    var now = currentRound();
+    ROUNDS.forEach(function(d, r){
+      var row = document.createElement('div');
+      row.className = 'grid row' + (r===now ? ' now' : '');
+      var tile = document.createElement('div');
+      tile.className = 'tile'; tile.setAttribute('aria-label','Round '+(r+1)+', double '+d);
+      tile.innerHTML = '<span>'+d+'</span><i></i><span>'+d+'</span>';
+      row.appendChild(tile);
+      for(var p=0;p<3;p++){
+        (function(p){
+          var v = state.scores[r][p];
+          var b = document.createElement('button');
+          b.type='button';
+          b.className = 'cell' + (v===null ? ' empty' : (v===0 ? ' zero' : ''));
+          b.setAttribute('aria-label', state.names[p]+', round '+(r+1)+': '+(v===null?'no score':v));
+          if(v===null){ b.textContent = r===now ? 'Add' : ''; }
+          else { b.innerHTML = v + (v===0 ? '<small>out</small>' : ''); }
+          b.addEventListener('click', function(){ openSheet(r,p); });
+          row.appendChild(b);
+        })(p);
+      }
+      rows.appendChild(row);
+    });
+    renderTotals();
+  }
+
+  function renderTotals(){
+    var totals = totalsOf(state), anyScore = hasScores(state);
+    var min = Math.min.apply(null, totals);
+    var el = $('totals'); el.innerHTML = '<div class="lbl">Total<br>low wins</div>';
+    totals.forEach(function(t,p){
+      var d = document.createElement('div');
+      d.className = 'tot' + (anyScore && t===min ? ' lead' : '');
+      d.innerHTML = '<b class="num">'+t+'</b><span></span>';
+      d.querySelector('span').textContent = state.names[p] + (anyScore && t>min ? ' +'+(t-min) : '');
+      el.appendChild(d);
+    });
+    var done = $('done');
+    if(isComplete(state)){
+      var w = winnersOf(state).map(function(p){ return state.names[p]; });
+      $('doneText').textContent = (w.length>1 ? 'Tie game: '+w.join(' and ')+' with '+min+'.' : w[0]+' wins with '+min+'.') + ' Saved to History.';
+      done.style.display='block';
+    } else done.style.display='none';
+  }
+
+  // Sheet: hand counter
+  var sheetWrap = $('sheetWrap'), editing = null, picks = [], lastFocus = null;
+  var pad = $('pad');
+  var c=[50,50], corners=[[22,17],[78,17],[22,83],[78,83]], sides=[[22,50],[78,50]];
+  var cols8=[[22,17],[22,39],[22,61],[22,83],[78,17],[78,39],[78,61],[78,83]], mids=[[50,28],[50,72]];
+  var LAYOUT={0:[],1:[c],2:[[22,17],[78,83]],3:[[22,17],c,[78,83]],4:corners,5:corners.concat([c]),
+    6:corners.concat(sides),7:corners.concat(sides,[c]),8:cols8,9:cols8.concat([c]),
+    10:cols8.concat(mids),11:cols8.concat(mids,[c]),12:cols8.concat([[50,17],[50,39],[50,61],[50,83]])};
+  function pipSvg(n){
+    var r = n<=6 ? 9 : 7.5;
+    return '<svg viewBox="0 0 100 100" aria-hidden="true">' + LAYOUT[n].map(function(p){
+      return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+r+'"/>';
+    }).join('') + '</svg>';
+  }
+  function buildPad(){
+    pad.innerHTML = '';
+    for(var n=0;n<=12;n++){
+      (function(n){
+        var value = n===0 ? BLANK : n;
+        var b = document.createElement('button');
+        b.type='button'; b.className='half'+(n===0 && !state.pips ? ' blank' : '');
+        b.innerHTML = state.pips ? '<span class="corner" aria-hidden="true">'+value+'</span>' + pipSvg(n) : (n===0 ? 'Blank<small>25</small>' : n);
+        b.setAttribute('aria-label', n===0 ? 'Add blank, 25' : 'Add '+n);
+        b.addEventListener('click', function(){ picks.push(value); $('typed').value=''; updateReadout(); });
+        pad.appendChild(b);
+      })(n);
+    }
+    $('viewNum').setAttribute('aria-pressed', String(!state.pips));
+    $('viewPip').setAttribute('aria-pressed', String(!!state.pips));
+  }
+  buildPad();
+  $('viewNum').addEventListener('click', function(){ state.pips = false; save(); buildPad(); });
+  $('viewPip').addEventListener('click', function(){ state.pips = true; save(); buildPad(); });
+
+  function sum(){ return picks.reduce(function(a,b){ return a+b; },0); }
+  function updateReadout(){
+    var typed = $('typed').value;
+    $('readout').textContent = typed !== '' ? (parseInt(typed,10)||0) : sum();
+    $('trail').textContent = typed !== '' ? 'Typed' : picks.join(' + ');
+  }
+  function openSheet(r,p){
+    editing = {r:r,p:p}; picks = []; lastFocus = document.activeElement;
+    var v = state.scores[r][p];
+    $('typed').value = v===null ? '' : v;
+    $('sheetTitle').textContent = state.names[p];
+    $('sheetSub').textContent = 'Round '+(r+1)+' · double '+ROUNDS[r];
+    $('erase').style.display = v===null ? 'none' : 'block';
+    updateReadout();
+    sheetWrap.classList.add('open');
+    setTimeout(function(){ $('save').focus(); }, 50);
+  }
+  function closeSheet(){ sheetWrap.classList.remove('open'); editing = null; if(lastFocus) lastFocus.focus(); }
+  function commit(value){
+    if(!editing) return;
+    state.scores[editing.r][editing.p] = value;
+    save(); closeSheet(); render();
+  }
+  $('undo').addEventListener('click', function(){ picks.pop(); updateReadout(); });
+  $('reset').addEventListener('click', function(){ picks = []; $('typed').value=''; updateReadout(); });
+  $('typed').addEventListener('input', updateReadout);
+  $('wentOut').addEventListener('click', function(){ commit(0); });
+  $('save').addEventListener('click', function(){
+    var typed = $('typed').value;
+    commit(typed !== '' ? Math.max(0, parseInt(typed,10)||0) : sum());
+  });
+  $('erase').addEventListener('click', function(){ commit(null); });
+  $('cancel').addEventListener('click', closeSheet);
+  $('scrim').addEventListener('click', closeSheet);
+  document.addEventListener('keydown', function(e){
+    if(e.key==='Escape' && editing) closeSheet();
+    else if(e.key==='Escape' && $('history').classList.contains('show')) closeHistory();
+    if(e.key==='Enter' && editing && document.activeElement===$('typed')) $('save').click();
+  });
+
+  $('newGame').addEventListener('click', function(){
+    var msg = hasScores(state) ? 'Start a new game? This one stays in History.' : 'Start a new game?';
+    if(!confirm(msg)) return;
+    state = fresh(state.names.slice(), state.pips); save(); buildNames(); render();
+  });
+
+  // ----- History -----
+  function gameTable(g){
+    var t = totalsOf(g);
+    var h = '<table class="gt"><thead><tr><th>Round</th><th>Double</th>' +
+      g.names.map(function(n){ return '<th>'+esc(n)+'</th>'; }).join('') + '</tr></thead><tbody>';
+    g.scores.forEach(function(row,r){
+      h += '<tr><td>'+(r+1)+'</td><td>'+ROUNDS[r]+'</td>' + row.map(function(v){ return '<td>'+(v===null?'–':v)+'</td>'; }).join('') + '</tr>';
+    });
+    return h + '</tbody><tfoot><tr><td>Total</td><td></td>' + t.map(function(v){ return '<td>'+v+'</td>'; }).join('') + '</tr></tfoot></table>';
+  }
+  function resultLine(g){
+    var t = totalsOf(g), w = winnersOf(g).map(function(p){ return g.names[p]; });
+    if(!g.complete) return 'Unfinished game.';
+    return (w.length>1 ? 'Tie: '+w.join(' and ') : 'Winner: '+w[0]) + ' (' + t[winnersOf(g)[0]] + ')';
+  }
+  function sortedHistory(){ return loadHistory().sort(function(a,b){ return b.started.localeCompare(a.started); }); }
+
+  function renderHistory(){
+    var list = $('historyList'), h = sortedHistory();
+    list.innerHTML = '';
+    $('printAll').disabled = $('downloadCsv').disabled = !h.length;
+    if(!h.length){ list.innerHTML = '<p class="empty-h">No games yet. Games save here automatically as you play.</p>'; return; }
+    h.forEach(function(g){
+      var t = totalsOf(g), w = winnersOf(g);
+      var d = document.createElement('details'); d.className = 'game';
+      d.innerHTML = '<summary><div class="gmeta"><span>'+esc(fmtDate(g.started))+'</span>' +
+        (g.complete ? '' : '<span class="tag">'+(g.id===state.id ? 'In progress' : 'Unfinished')+'</span>') + '</div>' +
+        '<div class="gtots">' + t.map(function(v,p){
+          return '<div class="'+(g.complete && w.indexOf(p)>-1 ? 'win' : '')+'"><b>'+v+'</b><span>'+esc(g.names[p])+'</span></div>';
+        }).join('') + '</div></summary>' +
+        '<div class="gbody">' + gameTable(g) +
+        '<div class="gactions"><button class="btn alt" type="button" data-print>Print this game</button>' +
+        '<button class="btn warn" type="button" data-delete>Delete</button></div></div>';
+      d.querySelector('[data-print]').addEventListener('click', function(){ printGames([g]); });
+      d.querySelector('[data-delete]').addEventListener('click', function(){
+        if(!confirm('Delete this game from History?')) return;
+        saveHistory(loadHistory().filter(function(x){ return x.id!==g.id; }));
+        if(g.id===state.id){ state = fresh(state.names.slice(), state.pips); try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} render(); }
+        renderHistory();
+      });
+      list.appendChild(d);
+    });
+  }
+
+  function printGames(games){
+    $('printArea').innerHTML = '<h1>Mexican Train scores</h1>' + games.map(function(g){
+      return '<section class="pgame"><h2>'+esc(fmtDate(g.started))+'</h2>'+gameTable(g)+'<p>'+esc(resultLine(g))+'</p></section>';
+    }).join('');
+    window.print();
+  }
+
+  function csvCell(v){ v = String(v); return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }
+  function downloadCsv(){
+    var lines = [];
+    sortedHistory().forEach(function(g){
+      var t = totalsOf(g);
+      lines.push(['Game', fmtDate(g.started), g.complete ? 'Complete' : 'Unfinished'].map(csvCell).join(','));
+      lines.push(['Round','Double'].concat(g.names).map(csvCell).join(','));
+      g.scores.forEach(function(row,r){ lines.push([r+1, ROUNDS[r]].concat(row.map(function(v){ return v===null?'':v; })).map(csvCell).join(',')); });
+      lines.push(['Total',''].concat(t).map(csvCell).join(','));
+      lines.push('');
+    });
+    var blob = new Blob([lines.join('\n')], {type:'text/csv'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'mexican-train-history-' + new Date().toISOString().slice(0,10) + '.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
+  }
+
+  var historyOpener = null;
+  function openHistory(){ historyOpener = document.activeElement; renderHistory(); $('history').classList.add('show'); $('closeHistory').focus(); }
+  function closeHistory(){ $('history').classList.remove('show'); if(historyOpener) historyOpener.focus(); }
+  $('openHistory').addEventListener('click', openHistory);
+  $('closeHistory').addEventListener('click', closeHistory);
+  $('printAll').addEventListener('click', function(){ printGames(sortedHistory()); });
+  $('downloadCsv').addEventListener('click', downloadCsv);
+
+  syncHistory();
+  render();
+})();
+</script>
+</body>
+</html>
