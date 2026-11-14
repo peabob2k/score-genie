@@ -1458,6 +1458,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
   }
   var state;
   setState(load() || fresh());
+  try{ if(!localStorage.getItem('mt-pips-v2')){ state.pips = true; localStorage.setItem('mt-pips-v2','1'); } }catch(e){}
   if(!state.id){ state.id = newId(); state.started = new Date().toISOString(); }
 
   function loadHistory(){
@@ -1570,15 +1571,20 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
   // Sheet: hand counter
   var sheetWrap = $('sheetWrap'), editing = null, picks = [], kinds = [], lastFocus = null;
   var pad = $('pad');
-  var c=[50,50], corners=[[22,17],[78,17],[22,83],[78,83]], sides=[[22,50],[78,50]];
-  var cols8=[[22,17],[22,39],[22,61],[22,83],[78,17],[78,39],[78,61],[78,83]], mids=[[50,28],[50,72]];
-  var LAYOUT={0:[],1:[c],2:[[22,17],[78,83]],3:[[22,17],c,[78,83]],4:corners,5:corners.concat([c]),
-    6:corners.concat(sides),7:corners.concat(sides,[c]),8:cols8,9:cols8.concat([c]),
-    10:cols8.concat(mids),11:cols8.concat(mids,[c]),12:cols8.concat([[50,17],[50,39],[50,61],[50,83]])};
+  // Pip layouts and colors matched to the Queensell double-12 set
+  function grid(xs, ys){ var a = []; xs.forEach(function(x){ ys.forEach(function(y){ a.push([x,y]); }); }); return a; }
+  function col4(x){ return [[x,16],[x,38],[x,62],[x,84]]; }
+  var c = [50,50], corners = [[25,20],[75,20],[25,80],[75,80]], six = grid([25,75],[20,50,80]);
+  var LAYOUT = {0:[], 1:[c], 2:[[25,20],[75,80]], 3:[[25,20],c,[75,80]], 4:corners, 5:corners.concat([c]),
+    6:six, 7:six.concat([c]), 8:six.concat([[50,20],[50,80]]), 9:grid([25,50,75],[20,50,80]),
+    10:col4(25).concat(col4(75),[[50,16],[50,84]]), 11:col4(25).concat(col4(75),[[50,20],[50,50],[50,80]]),
+    12:col4(25).concat(col4(50),col4(75))};
+  var PIP_COLOR = {1:'#2F6FCF', 2:'#8E2F55', 3:'#8E2F55', 4:'#7A7F2A', 5:'#2F6FCF', 6:'#E3B012', 7:'#2E5E2E',
+    8:'#B5A126', 9:'#5B2C91', 10:'#EE8A1C', 11:'#1F1F1F', 12:'#5B2C91'};
   function pipSvg(n){
     var r = n<=6 ? 9 : 7.5;
     return '<svg viewBox="0 0 100 100" aria-hidden="true">' + LAYOUT[n].map(function(p){
-      return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+r+'"/>';
+      return '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="'+r+'" style="fill:'+PIP_COLOR[n]+'"/>';
     }).join('') + '</svg>';
   }
   function blankVal(){ return state.rules.blank==='25' ? 25 : 0; }
