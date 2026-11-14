@@ -3,12 +3,43 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Mexican Train scorecard</title>
+<meta name="color-scheme" content="light dark">
+<title>Game Score Genie</title>
+<meta name="application-name" content="Game Score Genie">
+<meta name="apple-mobile-web-app-title" content="Game Score Genie">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#173b2c">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🃏</text></svg>">
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&family=Alegreya:wght@500;700;800&family=Alegreya+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-:root{
+body{margin:0;background:#173b2c}
+.bar{background:#173b2c;padding:calc(6px + env(safe-area-inset-top,0px)) 12px 6px;display:flex;justify-content:center}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:rgba(0,0,0,.28);border-radius:999px;padding:3px;width:100%;max-width:340px}
+.seg button{border:0;background:transparent;color:#f4efe4;font:600 13px/1 Barlow,system-ui,-apple-system,sans-serif;padding:7px 10px;border-radius:999px;cursor:pointer}
+.seg button[aria-selected="true"]{background:#fbf8f2;color:#1d1b19}
+.seg button:focus-visible{outline:3px solid #e9c46a;outline-offset:2px}
+.host{display:block}
+.host[hidden]{display:none!important}
+@media print{.bar{display:none!important} body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="bar">
+  <div class="seg" role="tablist" aria-label="Which game">
+    <button type="button" role="tab" data-game="mt" aria-selected="true">Mexican Train</button>
+    <button type="button" role="tab" data-game="hf" aria-selected="false">Hand &amp; Foot</button>
+  </div>
+</div>
+<div class="host" id="host-mt"></div>
+<div class="host" id="host-hf" hidden></div>
+
+<template id="tpl-mt"><style>
+:host{
   --bg:#E4ECE7; --surface:#FFFFFF; --ink:#14302A; --muted:#5B7169; --line:#C9D7D0;
   --felt:#1F6B52; --felt-ink:#FFFFFF; --tile:#FBFAF6; --tile-ink:#14302A; --pip:#B3261E;
   --gold:#E0A526; --gold-soft:#FBEFCF; --now:#D7EBE1;
@@ -19,7 +50,7 @@
   padding-bottom:env(safe-area-inset-bottom,0px);
 }
 @media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
+  :host{
     --bg:#0E211B; --surface:#16302A; --ink:#E7F0EB; --muted:#93AAA1; --line:#284840;
     --felt:#2E8F6E; --felt-ink:#FFFFFF; --tile:#EDEBE3; --tile-ink:#14302A; --pip:#B3261E;
     --gold:#E9B444; --gold-soft:#3A3318; --now:#1D3D34;
@@ -27,7 +58,7 @@
     color-scheme:dark;
   }
 }
-:root[data-theme="dark"]{
+:host([data-theme="dark"]){
   --bg:#0E211B; --surface:#16302A; --ink:#E7F0EB; --muted:#93AAA1; --line:#284840;
   --felt:#2E8F6E; --felt-ink:#FFFFFF; --tile:#EDEBE3; --tile-ink:#14302A; --pip:#B3261E;
   --gold:#E9B444; --gold-soft:#3A3318; --now:#1D3D34;
@@ -36,7 +67,7 @@
 }
 *,*::before,*::after{box-sizing:inherit}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:Barlow,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.4;-webkit-tap-highlight-color:transparent}
+.app{margin:0;background:var(--bg);color:var(--ink);font-family:Barlow,system-ui,-apple-system,"Segoe UI",sans-serif;font-size:16px;line-height:1.4;-webkit-tap-highlight-color:transparent}
 button,input{font:inherit;color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:3px solid var(--gold);outline-offset:2px}
@@ -51,7 +82,7 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
 .names input{width:100%;min-width:0;border:none;border-bottom:2px solid var(--line);background:transparent;padding:6px 2px;font-weight:600;font-size:17px;text-align:center;border-radius:0}
 .names input:focus{outline:none;border-bottom-color:var(--felt)}
 .names{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5;padding:6px 0 8px}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+.app::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
 
 /* Round tile: a double domino */
 .tile{display:flex;flex-direction:column;align-items:center;justify-content:center;width:40px;margin:0 auto;background:var(--tile);color:var(--tile-ink);border-radius:7px;box-shadow:inset 0 0 0 1.5px rgba(20,48,42,.35);height:100%;min-height:58px}
@@ -117,11 +148,22 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .done{margin:14px 0 0;padding:14px;border-radius:12px;background:var(--gold-soft);text-align:center;font-weight:600;display:none}
 
 .hbtns{display:flex;gap:6px}
-.panel{position:fixed;inset:0;z-index:40;background:var(--bg);overflow:auto;display:none;padding:calc(8px + env(safe-area-inset-top,0px)) 14px calc(24px + env(safe-area-inset-bottom,0px))}
-.panel.show{display:block}
-.panel-in{max-width:560px;margin:0 auto}
-.panel-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
-.panel-bar h2{font-family:"Barlow Condensed",Barlow,sans-serif;font-size:22px;font-weight:700;margin:0}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);background:var(--line);border-radius:999px;padding:3px;margin:4px 0 10px}
+.tab{border:none;background:transparent;border-radius:999px;padding:7px 6px;font-weight:600;font-size:14px;color:var(--ink)}
+.tab[aria-selected="true"]{background:var(--felt);color:var(--felt-ink)}
+[hidden]{display:none!important}
+.rules-view section{background:var(--surface);border-radius:12px;box-shadow:var(--shadow);padding:12px 14px;margin-bottom:8px}
+.rules-view h2{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:21px;margin:0 0 6px;display:flex;align-items:center;gap:8px}
+.rules-view h2::before{content:"";width:10px;height:10px;border-radius:50%;background:var(--pip);flex-shrink:0}
+.rules-view ul,.rules-view ol{margin:0;padding-left:1.15rem}
+.rules-view li{margin:.3rem 0}
+.rules-view li::marker{color:var(--muted)}
+.rules-view .note{color:var(--muted);font-size:14px;margin:.5rem 0 0}
+.rules-view table{width:100%;border-collapse:collapse}
+.rules-view td{padding:6px 0;border-bottom:1px solid var(--line)}
+.rules-view tr:last-child td{border-bottom:0}
+.rules-view td:last-child{text-align:right;font-weight:700;font-family:"Barlow Condensed",sans-serif;font-size:18px;white-space:nowrap}
+.rfoot{text-align:center;color:var(--muted);font-size:13px;margin:10px 0}
 .hactions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
 .btn{border:none;border-radius:10px;padding:11px 8px;font-weight:600;font-size:15px;background:var(--felt);color:var(--felt-ink)}
 .btn.alt{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1px var(--line)}
@@ -147,8 +189,8 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 .done button{margin-top:8px}
 #printArea{display:none}
 @media print{
-  body{background:#fff!important;color:#000!important}
-  body::before,.wrap,.totals,#sheetWrap,.panel{display:none!important}
+  .app{background:#fff!important;color:#000!important}
+  .app::before,.wrap,.totals,#sheetWrap,.panel{display:none!important}
   #printArea{display:block;font-family:Barlow,system-ui,sans-serif;color:#000}
   #printArea h1{font-size:20px;margin:0 0 12px}
   .pgame{break-inside:avoid;page-break-inside:avoid;margin-bottom:22px}
@@ -156,17 +198,75 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   .pgame .gt th,.pgame .gt td{border-bottom:1px solid #999;color:#000}
   .pgame p{margin:4px 0 0;font-size:13px}
 }
-</style>
-</head>
-<body>
+
+:host{display:block;padding-top:0!important}
+</style><div class="app">
 <div class="wrap">
   <header>
     <h1>Mexican Train</h1>
-    <div class="hbtns">
-      <button class="ghost" id="openHistory" type="button">History</button>
-      <button class="ghost" id="newGame" type="button">New game</button>
-    </div>
+    <button class="ghost" id="newGame" type="button">New game</button>
   </header>
+
+  <div class="tabs" role="tablist" aria-label="View">
+    <button class="tab" type="button" role="tab" id="t-rules" aria-controls="v-rules" aria-selected="true">Rules</button>
+    <button class="tab" type="button" role="tab" id="t-score" aria-controls="v-score" aria-selected="false">Score</button>
+    <button class="tab" type="button" role="tab" id="t-history" aria-controls="v-history" aria-selected="false">History</button>
+  </div>
+
+  <div id="v-rules" class="rules-view" role="tabpanel" aria-labelledby="t-rules">
+    <section>
+      <h2>Setup</h2>
+      <ul>
+        <li>Use a double-12 set. Turn every tile face down and mix them up. This is the boneyard.</li>
+        <li>Each player draws 15 tiles and stands them up so no one else can see them.</li>
+        <li>Put the round’s double in the center as the engine. Round 1 starts with double 12, round 2 with double 11, and so on down to double blank in round 13.</li>
+      </ul>
+    </section>
+    <section>
+      <h2>Trains</h2>
+      <ul>
+        <li>Each player builds a personal train that starts at the engine and runs toward them.</li>
+        <li>The Mexican Train is a shared train that anyone can start and play on.</li>
+        <li>Tiles join end to end, and the touching ends must match.</li>
+      </ul>
+    </section>
+    <section>
+      <h2>Your turn</h2>
+      <ol>
+        <li>Play one tile on your own train, the Mexican Train, or any train with a marker on it.</li>
+        <li>Can’t play? Draw one tile, and play it right away if you can.</li>
+        <li>Still can’t play? Put a marker on your train. Anyone can play on it until you play on it again, then take the marker off.</li>
+      </ol>
+    </section>
+    <section>
+      <h2>Doubles</h2>
+      <ul>
+        <li>Lay a double sideways across the end of a train.</li>
+        <li>After you play a double, play one more tile. The double must be covered with a matching tile before anyone plays anywhere else.</li>
+        <li>Can’t cover it? Draw one. Still nothing? Put your marker out, and the next player has to cover it.</li>
+      </ul>
+    </section>
+    <section>
+      <h2>Ending a round</h2>
+      <ul>
+        <li>The round ends as soon as someone plays their last tile.</li>
+        <li>If the boneyard is empty and no one can play, the round ends there.</li>
+      </ul>
+    </section>
+    <section>
+      <h2>Scoring</h2>
+      <table>
+        <tr><td>Each pip left in your hand</td><td>1</td></tr>
+        <tr><td>Each blank half</td><td>25</td></tr>
+        <tr><td>Double blank</td><td>50</td></tr>
+        <tr><td>Going out</td><td>0</td></tr>
+      </table>
+      <p class="note">Add up the tiles left in your hand at the end of each round. Lowest total after 13 rounds wins.</p>
+    </section>
+    <p class="rfoot">House rules vary — agree before the first tile.</p>
+  </div>
+
+  <div id="v-score" role="tabpanel" aria-labelledby="t-score" hidden>
 
   <div class="grid names" id="names">
     <div></div>
@@ -174,9 +274,18 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
 
   <div id="rows"></div>
   <div class="done" id="done"><div id="doneText"></div></div>
+  </div>
+
+  <div id="v-history" role="tabpanel" aria-labelledby="t-history" hidden>
+    <div class="hactions">
+      <button class="btn" type="button" id="printAll">Print all</button>
+      <button class="btn alt" type="button" id="downloadCsv">Download CSV</button>
+    </div>
+    <div id="historyList"></div>
+  </div>
 </div>
 
-<div class="totals" aria-live="polite">
+<div class="totals" id="totalsBar" aria-live="polite" hidden>
   <div class="grid" id="totals"></div>
 </div>
 
@@ -215,23 +324,301 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   </div>
 </div>
 
-<div class="panel" id="history" role="dialog" aria-modal="true" aria-labelledby="historyTitle">
-  <div class="panel-in">
-    <div class="panel-bar">
-      <h2 id="historyTitle">Game history</h2>
-      <button class="ghost" type="button" id="closeHistory">Close</button>
-    </div>
-    <div class="hactions">
-      <button class="btn" type="button" id="printAll">Print all</button>
-      <button class="btn alt" type="button" id="downloadCsv">Download CSV</button>
-    </div>
-    <div id="historyList"></div>
-  </div>
-</div>
-
 <div id="printArea"></div>
 
+</div></template>
+<template id="tpl-hf"><style>
+:host{
+  --felt:#1f4d3a; --felt-deep:#173b2c;
+  --card:#fbf8f2; --ink:#1d1b19; --muted:#5f5a52;
+  --red:#b3261e; --rule:#e2dccf; --chip:#efe9dc; --gold:#e9c46a; --lead:#fff3cf;
+  color-scheme: light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :host{
+    --felt:#10261d; --felt-deep:#0b1c15;
+    --card:#22201d; --ink:#f1ece2; --muted:#b4ad9f;
+    --red:#ff7b6e; --rule:#3a3631; --chip:#2e2b27; --lead:#3a3220;
+    color-scheme: dark;
+  }
+}
+:host([data-theme="dark"]){
+  --felt:#10261d; --felt-deep:#0b1c15;
+  --card:#22201d; --ink:#f1ece2; --muted:#b4ad9f;
+  --red:#ff7b6e; --rule:#3a3631; --chip:#2e2b27; --lead:#3a3220;
+  color-scheme: dark;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+.app{
+  margin:0; background:var(--felt);
+  background-image:radial-gradient(circle at 50% 0%, var(--felt) 0%, var(--felt-deep) 100%);
+  min-height:100vh; color:var(--ink);
+  font-family:"Alegreya Sans", "Segoe UI", system-ui, sans-serif;
+  font-size:17px; line-height:1.45;
+}
+.wrap{max-width:30rem; margin:0 auto; padding:1.25rem 0.9rem 2rem}
+header{color:#f4efe4; text-align:center; padding:0.5rem 0 0.9rem}
+h1{font-family:"Alegreya", Georgia, serif; font-weight:800; font-size:2.3rem; line-height:1; margin:0}
+header p{margin:0.4rem 0 0; opacity:0.85}
+
+/* view switch */
+.tabs{display:grid; grid-template-columns:1fr 1fr 1fr; background:var(--felt-deep); border-radius:999px; padding:4px; margin:0 0 1rem}
+.tab{appearance:none; border:0; font:inherit; font-weight:700; padding:0.6rem; border-radius:999px; background:transparent; color:#f4efe4; cursor:pointer}
+.tab[aria-selected="true"]{background:var(--card); color:var(--ink)}
+.tab:focus-visible{outline:3px solid var(--gold); outline-offset:2px}
+[hidden]{display:none !important}
+
+/* round picker */
+.rounds{display:grid; grid-template-columns:repeat(3,1fr); gap:0.6rem; margin:0 0 1rem}
+.round{
+  appearance:none; border:0; cursor:pointer; font:inherit; color:var(--ink);
+  background:var(--card); border-radius:12px; aspect-ratio:5/7;
+  position:relative; padding:0.5rem;
+  box-shadow:0 2px 0 rgba(0,0,0,.25);
+  transform:translateY(6px); transition:transform .18s ease;
+}
+.round[aria-pressed="true"]{transform:translateY(-4px); outline:3px solid var(--gold); outline-offset:2px}
+.round:focus-visible{outline:3px solid var(--gold); outline-offset:2px}
+.round .corner{position:absolute; top:0.45rem; left:0.55rem; font-family:"Alegreya",serif; font-weight:700; line-height:1; text-align:center; font-size:1.05rem}
+.round .corner small{display:block; font-size:0.9rem}
+.round .corner.b{top:auto; left:auto; bottom:0.45rem; right:0.55rem; transform:rotate(180deg)}
+.round .mid{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center}
+.round .num{font-family:"Alegreya",serif; font-weight:800; font-size:2.1rem; line-height:1}
+.round .lbl{font-size:0.82rem; color:var(--muted)}
+.r2 .corner, .r2 .num{color:var(--red)}
+@media (prefers-reduced-motion: reduce){.round{transition:none}}
+
+.now{background:var(--card); border-radius:14px; padding:0.85rem 1rem; margin-bottom:1rem; text-align:center}
+.now strong{font-family:"Alegreya",serif; font-size:1.3rem}
+
+section{background:var(--card); border-radius:14px; padding:1rem 1.1rem; margin-bottom:0.8rem}
+h2{font-family:"Alegreya",serif; font-weight:700; font-size:1.35rem; margin:0 0 0.5rem; display:flex; gap:0.45rem; align-items:baseline}
+h2 .suit{font-size:1.1rem}
+.red{color:var(--red)}
+ul,ol{margin:0; padding-left:1.15rem}
+li{margin:0.3rem 0}
+li::marker{color:var(--muted)}
+
+table{width:100%; border-collapse:collapse; font-size:1rem}
+td,th{padding:0.38rem 0; border-bottom:1px solid var(--rule)}
+tr:last-child td{border-bottom:0}
+.rules td:last-child{text-align:right; font-weight:700; white-space:nowrap}
+.neg{color:var(--red)}
+.note{color:var(--muted); font-size:0.92rem; margin:0.6rem 0 0}
+footer{color:#f4efe4; opacity:.8; text-align:center; font-size:0.9rem; margin-top:1rem}
+
+/* scoreboard */
+.scorebar{position:sticky; top:env(safe-area-inset-top,0px); z-index:5; display:grid; grid-template-columns:34% repeat(3,1fr); align-items:center; background:var(--card); border-radius:14px; padding:0.6rem 1.1rem; margin-bottom:0.8rem; box-shadow:0 4px 10px rgba(0,0,0,.25)}
+.sb-label{font-family:"Alegreya",serif; font-weight:700; font-size:1.1rem; line-height:1.15}
+.sb-label small{display:block; font-family:"Alegreya Sans",sans-serif; font-weight:400; font-size:0.75rem; color:var(--muted)}
+.stand{text-align:center; padding:0.3rem 0.2rem; border-radius:10px; min-width:0}
+.stand.lead{background:var(--lead); outline:2px solid var(--gold)}
+.stand input{background:transparent; border-color:transparent; font-weight:700; padding:0.2rem; font-size:0.95rem; text-align:center}
+.stand input:hover{border-color:var(--rule)}
+.stand .tot{font-family:"Alegreya",serif; font-weight:800; font-size:1.35rem; line-height:1.1}
+.open{margin-left:auto; font-family:"Alegreya Sans",sans-serif; font-weight:500; font-size:0.95rem; color:var(--muted)}
+.open b{color:var(--ink)}
+.app::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:10; background:var(--felt-deep)}
+input{font:inherit; color:var(--ink); background:var(--chip); border:1px solid var(--rule); border-radius:8px; padding:0.45rem 0.5rem; width:100%; min-width:0}
+input:focus-visible{outline:3px solid var(--gold); outline-offset:1px}
+input[type=number]{text-align:center; -moz-appearance:textfield}
+input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{-webkit-appearance:none; margin:0}
+.sheet{table-layout:fixed}
+.sheet td:first-child{width:34%}
+.sheet td{padding:0.3rem 0.2rem}
+.sheet td:first-child{padding-left:0; font-size:0.95rem}
+.sheet td small{display:block; color:var(--muted); font-size:0.78rem; line-height:1.2}
+.sheet .out{display:flex; justify-content:center}
+.sheet .out input{width:1.6rem; height:1.6rem; accent-color:var(--felt)}
+.sheet tr.sub td{font-weight:700; text-align:center; background:var(--chip)}
+.sheet tr.sub td:first-child{text-align:left; padding-left:0.4rem; border-radius:6px 0 0 6px}
+.sheet tr.sub td:last-child{border-radius:0 6px 6px 0}
+.sheet tr.total td{font-family:"Alegreya",serif; font-weight:800; font-size:1.15rem; text-align:center; border-top:2px solid var(--ink)}
+.sheet tr.total td:first-child{text-align:left}
+.warn{border-left:4px solid var(--red); background:var(--chip); border-radius:6px; padding:0.5rem 0.7rem; margin:0 0 0.7rem; font-size:0.92rem}
+.warn ul{padding-left:1rem}
+.warn li{margin:0.15rem 0}
+.sheet .bad{outline:2px solid var(--red); outline-offset:1px}
+.tap{appearance:none; width:100%; font:inherit; font-family:"Alegreya",serif; font-weight:800; font-size:1.15rem; line-height:1.2; padding:0.3rem; border-radius:8px; border:1px solid var(--rule); background:var(--chip); color:var(--muted); cursor:pointer; touch-action:manipulation}
+.tap[aria-pressed="true"]{background:var(--gold); border-color:var(--gold); color:#1d1b19}
+.tap:focus-visible{outline:3px solid var(--gold); outline-offset:2px}
+.ctr{display:flex; flex-direction:column; align-items:stretch; gap:2px}
+.undo{appearance:none; border:0; background:transparent; font:inherit; font-size:0.85rem; font-weight:700; color:var(--muted); padding:0.25rem; border-radius:6px; cursor:pointer; touch-action:manipulation}
+.undo:disabled{visibility:hidden}
+.undo:focus-visible{outline:2px solid var(--gold)}
+.btn{appearance:none; border:2px solid #f4efe4; background:transparent; color:#f4efe4; font:inherit; font-weight:700; border-radius:999px; padding:0.6rem 1.2rem; cursor:pointer; display:block; margin:0.5rem auto 0}
+.btn:focus-visible{outline:3px solid var(--gold); outline-offset:2px}
+
+/* history */
+.hist-actions{display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:0.8rem}
+.hbtn{appearance:none; border:0; font:inherit; font-weight:700; border-radius:10px; padding:0.65rem; background:var(--card); color:var(--ink); cursor:pointer}
+.hbtn.alt{background:transparent; color:#f4efe4; box-shadow:inset 0 0 0 2px #f4efe4}
+.hbtn.del{background:transparent; color:var(--red); box-shadow:inset 0 0 0 1px var(--rule)}
+.hbtn:disabled{opacity:.5; cursor:default}
+.hbtn:focus-visible{outline:3px solid var(--gold); outline-offset:2px}
+.hempty{color:#f4efe4; opacity:.85; text-align:center; padding:2rem 1rem}
+.hgame{background:var(--card); border-radius:14px; margin-bottom:0.6rem; overflow:hidden}
+.hgame summary{list-style:none; padding:0.75rem 1rem; cursor:pointer}
+.hgame summary::-webkit-details-marker{display:none}
+.hmeta{display:flex; justify-content:space-between; gap:0.5rem; font-size:0.85rem; color:var(--muted); margin-bottom:0.4rem}
+.htag{color:var(--red); font-weight:700}
+.htots{display:grid; grid-template-columns:repeat(3,1fr); gap:0.4rem}
+.htots div{text-align:center; border-radius:10px; padding:0.25rem}
+.htots b{display:block; font-family:"Alegreya",serif; font-weight:800; font-size:1.3rem; line-height:1.1}
+.htots span{display:block; font-size:0.8rem; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.htots .win{background:var(--lead); outline:2px solid var(--gold)}
+.hbody{padding:0 1rem 1rem}
+.ht{width:100%; border-collapse:collapse; font-size:0.95rem; margin-bottom:0.7rem; table-layout:fixed}
+.ht th,.ht td{padding:0.3rem 0.2rem; text-align:center; border-bottom:1px solid var(--rule)}
+.ht th:first-child,.ht td:first-child{text-align:left; width:28%}
+.ht th{font-size:0.85rem; color:var(--muted); font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.ht .hr td{font-family:"Alegreya",serif; font-weight:700; padding-top:0.6rem; border-bottom:0}
+.ht .hsub td{font-weight:700; background:var(--chip)}
+.ht tfoot td{font-family:"Alegreya",serif; font-weight:800; font-size:1.1rem; border-top:2px solid var(--ink); border-bottom:0}
+.hgact{display:grid; grid-template-columns:2fr 1fr; gap:0.5rem}
+.hgact .hbtn:first-child{background:var(--chip)}
+#printArea{display:none}
+@media print{
+  .app{background:#fff!important; color:#000!important}
+  .app::before,.wrap{display:none!important}
+  #printArea{display:block; color:#000; font-family:"Alegreya Sans",system-ui,sans-serif}
+  #printArea h1{font-family:"Alegreya",serif; font-size:20px; margin:0 0 12px}
+  .pgame{break-inside:avoid; page-break-inside:avoid; margin-bottom:22px}
+  .pgame h2{font-size:15px; margin:0 0 6px}
+  .pgame p{margin:4px 0 0; font-size:13px}
+  #printArea .ht th,#printArea .ht td{color:#000; border-color:#999; background:none}
+  #printArea .ht tfoot td{border-top-color:#000}
+}
+
+:host{display:block;padding-top:0!important}
+</style><div class="app">
+<div class="wrap">
+  <header>
+    <h1>Hand &amp; Foot</h1>
+    <p>3 players · 3 rounds · every player for themselves</p>
+  </header>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="t-rules" aria-selected="true" aria-controls="v-rules">Rules</button>
+    <button class="tab" role="tab" id="t-score" aria-selected="false" aria-controls="v-score">Score</button>
+    <button class="tab" role="tab" id="t-history" aria-selected="false" aria-controls="v-history">History</button>
+  </div>
+
+  <!-- RULES -->
+  <div id="v-rules" role="tabpanel" aria-labelledby="t-rules">
+    <section>
+      <h2><span class="suit">♠</span>Setup</h2>
+      <ul>
+        <li>Shuffle 4 decks together, jokers in.</li>
+        <li>Each player grabs cards off the stack without counting. Land on exactly 22 and you’re <b>right on the beezer</b>: +100 that round.</li>
+        <li>Split your cards into two piles of 11. Pass one pile to the player on your left and the other to the player on your right.</li>
+        <li>Of the two piles you get, one is your <b>hand</b> to play first and the other is your <b>foot</b>, set aside face down.</li>
+        <li>Everyone plays alone and builds their own melds.</li>
+        <li>Flip one card to start the discard pile.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2><span class="suit red">♥</span>Your turn</h2>
+      <ol>
+        <li>Draw 2 from the stock — <i>or</i> pick up from the discard pile.
+          <ul>
+            <li>To pick up, you need 2 natural cards that match the top card. Play those 2 and the top card right away.</li>
+            <li>Take up to 7 cards from the top of the pile. If you reach a wild, take it too and stop there.</li>
+            <li>No pickup if the top card is a black 3 or a wild.</li>
+            <li>No pickup if playing those 3 cards would push a meld past 7. With 5 kings already down, you can’t pick up a king.</li>
+          </ul>
+        </li>
+        <li>Meld or add to your own melds.</li>
+        <li>Discard 1 card.</li>
+      </ol>
+      <p class="note">Play out your hand and you pick up your foot. If your last card is a discard, pick it up on your next turn.</p>
+    </section>
+
+    <section>
+      <h2><span class="suit">♣</span>Melds &amp; books</h2>
+      <ul>
+        <li>A meld is 3–7 cards of one rank. No runs.</li>
+        <li>Wilds are jokers and 2s. Naturals must outnumber wilds.</li>
+        <li>7 cards closes a <b>book</b>: no wilds = <b>clean</b>, any wild = <b>dirty</b>.</li>
+        <li>3s can’t be melded. Get rid of them by discarding.</li>
+        <li>Your first meld each round must total at least <b>50</b> points in round 1, <b>100</b> in round 2 and <b>150</b> in round 3.</li>
+        <li>4 decks hold 16 of each rank, so a round can have at most 2 clean books of any rank — 2 clean 7s books, tops.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2><span class="suit red">♦</span>Going out</h2>
+      <ul>
+        <li>You must be in your foot.</li>
+        <li>You need at least <b>2 clean</b> and <b>2 dirty</b> books of your own.</li>
+        <li>Meld every card, or end with one discard. The round ends for everyone.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2><span class="suit">♠</span>Scoring</h2>
+      <table class="rules">
+        <tr><td>Clean book</td><td>500</td></tr>
+        <tr><td>Dirty book</td><td>300</td></tr>
+        <tr><td>Clean book of 7s (bonus)</td><td>+1,000</td></tr>
+        <tr><td>Going out</td><td>100</td></tr>
+        <tr><td>Right on the beezer (exactly 22)</td><td>100</td></tr>
+        <tr><td>Joker</td><td>50</td></tr>
+        <tr><td>2 or Ace</td><td>20</td></tr>
+        <tr><td>8 through King</td><td>10</td></tr>
+        <tr><td>4 through 7</td><td>5</td></tr>
+        <tr><td>Red 3 left in hand or foot</td><td class="neg">−100</td></tr>
+        <tr><td>Black 3 left in hand or foot</td><td class="neg">−100</td></tr>
+      </table>
+      <p class="note">Book score = books + 7s bonus + going out + beezer. Meld score = cards melded − cards still in hand and foot. Round score = book + meld. Highest total after round 3 wins.</p>
+    </section>
+  </div>
+
+  <!-- SCORE -->
+  <div id="v-score" role="tabpanel" aria-labelledby="t-score" hidden>
+    <div class="scorebar" aria-live="polite">
+      <div class="sb-label">Totals<small>tap a name to edit</small></div>
+      <div class="stand" id="s0"><input id="n0" aria-label="Player 1 name" placeholder="Player 1" maxlength="14"><div class="tot" id="tot0">0</div></div>
+      <div class="stand" id="s1"><input id="n1" aria-label="Player 2 name" placeholder="Player 2" maxlength="14"><div class="tot" id="tot1">0</div></div>
+      <div class="stand" id="s2"><input id="n2" aria-label="Player 3 name" placeholder="Player 3" maxlength="14"><div class="tot" id="tot2">0</div></div>
+    </div>
+
+    <div id="sheets"></div>
+
+    <button class="btn" id="reset">Start a new game</button>
+  </div>
+
+  <!-- HISTORY -->
+  <div id="v-history" role="tabpanel" aria-labelledby="t-history" hidden>
+    <div class="hist-actions">
+      <button class="hbtn" type="button" id="hPrintAll">Print all</button>
+      <button class="hbtn alt" type="button" id="hCsv">Download CSV</button>
+    </div>
+    <div id="histList"></div>
+  </div>
+
+  <footer>House rules vary — agree before the first deal.</footer>
+</div>
+<div id="printArea"></div>
+
+</div></template>
+
 <script>
+(function(){
+  function mount(hostId, tplId){
+    var root = document.getElementById(hostId).attachShadow({mode:'open'});
+    root.appendChild(document.getElementById(tplId).content.cloneNode(true));
+    return root;
+  }
+  var rootMT = mount('host-mt','tpl-mt'), rootHF = mount('host-hf','tpl-hf');
+
+  // ===== Mexican Train =====
+  try{ (function(R){ 
 (function(){
   var KEY = 'mexican-train-v1', HKEY = 'mexican-train-history-v1';
   var ROUNDS = [12,11,10,9,8,7,6,5,4,3,2,1,0];
@@ -273,7 +660,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   }
   function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} syncHistory(); }
 
-  var $ = function(id){ return document.getElementById(id); };
+  var $ = function(id){ return R.getElementById(id); };
   function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
   function fmtDate(iso){
     var d = new Date(iso);
@@ -387,7 +774,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     $('trail').textContent = typed !== '' ? 'Typed' : picks.join(' + ');
   }
   function openSheet(r,p){
-    editing = {r:r,p:p}; picks = []; lastFocus = document.activeElement;
+    editing = {r:r,p:p}; picks = []; lastFocus = R.activeElement;
     var v = state.scores[r][p];
     $('typed').value = v===null ? '' : v;
     $('sheetTitle').textContent = state.names[p];
@@ -416,8 +803,7 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
   $('scrim').addEventListener('click', closeSheet);
   document.addEventListener('keydown', function(e){
     if(e.key==='Escape' && editing) closeSheet();
-    else if(e.key==='Escape' && $('history').classList.contains('show')) closeHistory();
-    if(e.key==='Enter' && editing && document.activeElement===$('typed')) $('save').click();
+    if(e.key==='Enter' && editing && R.activeElement===$('typed')) $('save').click();
   });
 
   $('newGame').addEventListener('click', function(){
@@ -496,16 +882,296 @@ body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset
     setTimeout(function(){ URL.revokeObjectURL(a.href); }, 1000);
   }
 
-  var historyOpener = null;
-  function openHistory(){ historyOpener = document.activeElement; renderHistory(); $('history').classList.add('show'); $('closeHistory').focus(); }
-  function closeHistory(){ $('history').classList.remove('show'); if(historyOpener) historyOpener.focus(); }
-  $('openHistory').addEventListener('click', openHistory);
-  $('closeHistory').addEventListener('click', closeHistory);
+  var VIEWS = ['rules','score','history'];
+  function showView(v){
+    VIEWS.forEach(function(k){
+      $('t-'+k).setAttribute('aria-selected', String(k===v));
+      $('v-'+k).hidden = k!==v;
+    });
+    $('totalsBar').hidden = v!=='score';
+    if(v==='history') renderHistory();
+    try{ localStorage.setItem('mt-tab', v); }catch(e){}
+    window.scrollTo(0,0);
+  }
+  VIEWS.forEach(function(k){ $('t-'+k).addEventListener('click', function(){ showView(k); }); });
   $('printAll').addEventListener('click', function(){ printGames(sortedHistory()); });
   $('downloadCsv').addEventListener('click', downloadCsv);
 
   syncHistory();
   render();
+  var t0 = 'rules'; try{ t0 = localStorage.getItem('mt-tab') || 'rules'; }catch(e){}
+  showView(VIEWS.indexOf(t0)>-1 ? t0 : 'rules');
+})();
+ })(rootMT); }catch(e){ console.error('Mexican Train failed to start', e); }
+
+  // ===== Hand & Foot =====
+  try{ (function(R){ 
+(function(){
+  /* ---- tabs ---- */
+  const tabs={rules:R.getElementById('t-rules'),score:R.getElementById('t-score'),history:R.getElementById('t-history')};
+  const views={rules:R.getElementById('v-rules'),score:R.getElementById('v-score'),history:R.getElementById('v-history')};
+  function show(which){
+    for(const k in tabs){
+      const on=k===which;
+      tabs[k].setAttribute('aria-selected',on?'true':'false');
+      views[k].hidden=!on;
+    }
+    try{localStorage.setItem('hf-tab',which)}catch(e){}
+    if(which==='history') renderHistory();
+  }
+  tabs.rules.addEventListener('click',()=>show('rules'));
+  tabs.score.addEventListener('click',()=>show('score'));
+  tabs.history.addEventListener('click',()=>show('history'));
+
+  /* ---- scorekeeping ---- */
+  const KEY='hf-score-v1';
+  const newId=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  const blank=()=>({id:newId(),started:new Date().toISOString(),names:['','',''],rounds:[0,1,2].map(()=>[0,1,2].map(()=>({clean:'',sevens:'',dirty:'',out:false,beezer:false,melded:'',left:''})))});
+  let S;
+  try{ S=JSON.parse(localStorage.getItem(KEY)) || blank(); }catch(e){ S=blank(); }
+  if(!S.rounds||S.rounds.length!==3) S=blank();
+  if(!S.id){ S.id=newId(); S.started=new Date().toISOString(); }
+  const save=()=>{ try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){} syncHistory(); };
+  const name=i=>S.names[i].trim()||('Player '+(i+1));
+  const n=v=>{const x=parseInt(v,10); return isNaN(x)?0:x;};
+  const bookS=c=>n(c.clean)*500+n(c.sevens)*1000+n(c.dirty)*300+(c.out?100:0)+(c.beezer?100:0);
+  const meldS=c=>n(c.melded)-Math.abs(n(c.left));
+  const score=c=>bookS(c)+meldS(c);
+  const fmt=x=>x<0?'−'+Math.abs(x).toLocaleString():x.toLocaleString();
+
+  /* ---- book checks (3 players, 4 decks) ---- */
+  const DECKS=4, PER_RANK=DECKS*4, RANKS=11, WILDS=DECKS*6;
+  const MAX_CLEAN=RANKS*2, MAX_SEVENS=2;
+  function check(r){
+    const rd=S.rounds[r], msgs=[], bad=new Set();
+    let tc=0,t7=0,td=0;
+    rd.forEach((c,p)=>{
+      const cl=n(c.clean), sv=n(c.sevens), dt=n(c.dirty);
+      tc+=cl; t7+=sv; td+=dt;
+      if(sv>cl){ msgs.push(name(p)+' has more clean 7s books than clean books. Count each 7s book in both rows.'); bad.add('sevens'+p); bad.add('clean'+p); }
+      if(c.out && (cl<2 || dt<2)){ msgs.push(name(p)+' needs at least 2 clean and 2 dirty books to go out.'); bad.add('out'+p); if(cl<2) bad.add('clean'+p); if(dt<2) bad.add('dirty'+p); }
+    });
+    const flag=k=>[0,1,2].forEach(p=>{ if(n(rd[p][k])>0) bad.add(k+p); });
+    if(t7>MAX_SEVENS){ msgs.push('4 decks allow only '+MAX_SEVENS+' clean 7s books per round. This round shows '+t7+'.'); flag('sevens'); }
+    if(tc>MAX_CLEAN){ msgs.push('4 decks allow at most '+MAX_CLEAN+' clean books per round (2 of each rank). This round shows '+tc+'.'); flag('clean'); }
+    if(td>WILDS){ msgs.push('Every dirty book needs a wild, and 4 decks have only '+WILDS+'. This round shows '+td+' dirty books.'); flag('dirty'); }
+    else if(7*tc+4*td>PER_RANK*RANKS){ msgs.push('That many books needs more natural cards than 4 decks hold. Recheck the book counts.'); flag('clean'); flag('dirty'); }
+
+    sheets.querySelectorAll('[data-k][data-r="'+r+'"]').forEach(inp=>{
+      inp.classList.toggle('bad', bad.has(inp.dataset.k+inp.dataset.p));
+    });
+    const w=R.getElementById('warn'+r);
+    w.innerHTML='';
+    if(msgs.length){
+      const ul=document.createElement('ul');
+      msgs.forEach(m=>{ const li=document.createElement('li'); li.textContent=m; ul.appendChild(li); });
+      w.appendChild(ul);
+    }
+    w.hidden=!msgs.length;
+  }
+
+  const rows=[
+    {k:'beezer',label:'Right on the beezer',sub:'+ 100, exactly 22'},
+    {k:'clean',tap:true,label:'Clean books',sub:'× 500, include 7s'},
+    {k:'dirty',tap:true,label:'Dirty books',sub:'× 300'},
+    {k:'sevens',tap:true,label:'Clean 7s books',sub:'+ 1,000 each'},
+    {k:'out',label:'Went out',sub:'+ 100'},
+    {total:'bt',label:'Book score'},
+    {k:'melded',label:'Cards melded',sub:'card points'},
+    {k:'left',label:'Cards left',sub:'in hand + foot, 3s = 100'},
+    {total:'mt',label:'Meld score'}
+  ];
+  const suits=['♠','♥','♣'];
+  const mins=[50,100,150];
+  const sheets=R.getElementById('sheets');
+
+  function build(){
+    sheets.innerHTML='';
+    S.rounds.forEach((rd,r)=>{
+      const sec=document.createElement('section');
+      let h='<h2><span class="suit'+(r===1?' red':'')+'">'+suits[r]+'</span>Round '+(r+1)+'<span class="open">opens at <b>'+mins[r]+'</b></span></h2><div class="warn" id="warn'+r+'" role="status" hidden></div><table class="sheet"><tbody>';
+      rows.forEach(row=>{
+        if(row.total){
+          h+='<tr class="sub"><td>'+row.label+'</td>';
+          for(let p=0;p<3;p++) h+='<td id="'+row.total+r+p+'">0</td>';
+          h+='</tr>'; return;
+        }
+        h+='<tr><td>'+row.label+'<small>'+row.sub+'</small></td>';
+        for(let p=0;p<3;p++){
+          const id='c'+r+row.k+p;
+          if(row.k==='out'||row.k==='beezer'){
+            h+='<td><div class="out"><input type="checkbox" id="'+id+'" data-r="'+r+'" data-p="'+p+'" data-k="'+row.k+'" aria-label="Round '+(r+1)+' '+row.label+'"></div></td>';
+          }else if(row.tap){
+            h+='<td><div class="ctr"><button type="button" class="tap" id="'+id+'" data-r="'+r+'" data-p="'+p+'" data-k="'+row.k+'" aria-label="Round '+(r+1)+' '+row.label+', tap to add one"></button><button type="button" class="undo" aria-label="Remove one from '+row.label+'">−1</button></div></td>';
+          }else{
+            h+='<td><input type="number" inputmode="numeric" pattern="[0-9]*" min="0" id="'+id+'" data-r="'+r+'" data-p="'+p+'" data-k="'+row.k+'" aria-label="Round '+(r+1)+' '+row.label+'"></td>';
+          }
+        }
+        h+='</tr>';
+      });
+      h+='<tr class="total"><td>Round</td>';
+      for(let p=0;p<3;p++) h+='<td id="rt'+r+p+'">0</td>';
+      h+='</tr></tbody></table>';
+      sec.innerHTML=h;
+      sheets.appendChild(sec);
+    });
+    sheets.querySelectorAll('input').forEach(inp=>{
+      const c=S.rounds[inp.dataset.r][inp.dataset.p];
+      if(inp.type==='checkbox') inp.checked=!!c[inp.dataset.k]; else inp.value=(c[inp.dataset.k]??'');
+      inp.addEventListener(inp.type==='checkbox'?'change':'input',()=>{
+        if(inp.type==='checkbox'){
+          if(inp.checked && inp.dataset.k==='out'){ // only one player can go out per round
+            for(let q=0;q<3;q++){ if(q!=inp.dataset.p){ S.rounds[inp.dataset.r][q].out=false; const o=R.getElementById('c'+inp.dataset.r+'out'+q); if(o) o.checked=false; } }
+          }
+          c[inp.dataset.k]=inp.checked;
+        } else c[inp.dataset.k]=inp.value;
+        save(); refresh();
+      });
+    });
+    sheets.querySelectorAll('button.tap').forEach(b=>{
+      const k=b.dataset.k, c=S.rounds[b.dataset.r][b.dataset.p], u=b.nextElementSibling;
+      const paint=()=>{ const v=n(c[k]); b.textContent=v?String(v):'–'; b.setAttribute('aria-pressed', v?'true':'false'); u.disabled=!v; };
+      paint();
+      b.addEventListener('click',()=>{ c[k]=String(n(c[k])+1); paint(); save(); refresh(); });
+      u.addEventListener('click',()=>{ const v=Math.max(0,n(c[k])-1); c[k]=v?String(v):''; paint(); save(); refresh(); });
+    });
+    for(let i=0;i<3;i++) R.getElementById('n'+i).value=S.names[i];
+    refresh();
+  }
+
+  function refresh(){
+    const totals=[0,0,0];
+    S.rounds.forEach((rd,r)=>rd.forEach((c,p)=>{
+      const s=score(c); totals[p]+=s;
+      R.getElementById('bt'+r+p).textContent=fmt(bookS(c));
+      R.getElementById('mt'+r+p).textContent=fmt(meldS(c));
+      R.getElementById('rt'+r+p).textContent=fmt(s);
+    }));
+    const max=Math.max(...totals);
+    const anyScore=totals.some(t=>t!==0);
+    totals.forEach((t,p)=>{
+      R.getElementById('tot'+p).textContent=fmt(t);
+      R.getElementById('s'+p).classList.toggle('lead', anyScore && t===max);
+    });
+    [0,1,2].forEach(check);
+  }
+
+  for(let i=0;i<3;i++){
+    R.getElementById('n'+i).addEventListener('input',e=>{ S.names[i]=e.target.value; save(); refresh(); });
+  }
+  R.getElementById('reset').addEventListener('click',()=>{
+    if(!confirm(hasData(S) ? 'Start a new game? This one stays in History. Player names stay.' : 'Start a new game? Player names stay.')) return;
+    const names=S.names; S=blank(); S.names=names; save(); build();
+  });
+
+  /* ---- history ---- */
+  const HKEY='hf-history-v1';
+  function loadH(){ try{ const h=JSON.parse(localStorage.getItem(HKEY)); return Array.isArray(h)?h:[]; }catch(e){ return []; } }
+  function saveH(h){ try{ localStorage.setItem(HKEY,JSON.stringify(h)); }catch(e){} }
+  function filled(c){ return Object.keys(c).some(k=>c[k]!==''&&c[k]!==false&&c[k]!=null); }
+  function hasData(g){ return g.rounds.some(rd=>rd.some(filled)); }
+  function totalsOf(g){ return [0,1,2].map(p=>g.rounds.reduce((a,rd)=>a+score(rd[p]),0)); }
+  function winnersOf(g){ const t=totalsOf(g), m=Math.max(...t); return [0,1,2].filter(p=>t[p]===m); }
+  function syncHistory(){
+    const h=loadH(), i=h.findIndex(g=>g.id===S.id);
+    if(!hasData(S)){ if(i>-1) h.splice(i,1); }
+    else{
+      const g={id:S.id, started:S.started, names:[0,1,2].map(name), rounds:JSON.parse(JSON.stringify(S.rounds)), complete:S.rounds.every(rd=>rd.some(c=>c.out))};
+      if(i>-1) h[i]=g; else h.push(g);
+    }
+    saveH(h);
+  }
+  const esc=x=>String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function fmtDate(iso){
+    const d=new Date(iso);
+    return d.toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric',year:'numeric'})+', '+d.toLocaleTimeString(undefined,{hour:'numeric',minute:'2-digit'});
+  }
+  function gameTable(g){
+    let h='<table class="ht"><thead><tr><th></th>'+g.names.map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr></thead><tbody>';
+    g.rounds.forEach((rd,r)=>{
+      h+='<tr class="hr"><td colspan="4">Round '+(r+1)+'</td></tr>';
+      h+='<tr><td>Books</td>'+rd.map(c=>'<td>'+fmt(bookS(c))+'</td>').join('')+'</tr>';
+      h+='<tr><td>Melds</td>'+rd.map(c=>'<td>'+fmt(meldS(c))+'</td>').join('')+'</tr>';
+      h+='<tr class="hsub"><td>Round</td>'+rd.map(c=>'<td>'+fmt(score(c))+'</td>').join('')+'</tr>';
+    });
+    return h+'</tbody><tfoot><tr><td>Total</td>'+totalsOf(g).map(t=>'<td>'+fmt(t)+'</td>').join('')+'</tr></tfoot></table>';
+  }
+  function resultLine(g){
+    if(!g.complete) return 'Unfinished game.';
+    const w=winnersOf(g), t=totalsOf(g);
+    return (w.length>1?'Tie: '+w.map(p=>g.names[p]).join(' and '):'Winner: '+g.names[w[0]])+' ('+fmt(t[w[0]])+')';
+  }
+  const sortedH=()=>loadH().sort((a,b)=>b.started.localeCompare(a.started));
+  function renderHistory(){
+    const list=R.getElementById('histList'), h=sortedH();
+    list.innerHTML='';
+    R.getElementById('hPrintAll').disabled=R.getElementById('hCsv').disabled=!h.length;
+    if(!h.length){ list.innerHTML='<p class="hempty">No games yet. Games save here automatically as you play.</p>'; return; }
+    h.forEach(g=>{
+      const t=totalsOf(g), w=winnersOf(g);
+      const d=document.createElement('details'); d.className='hgame';
+      d.innerHTML='<summary><div class="hmeta"><span>'+esc(fmtDate(g.started))+'</span>'+
+        (g.complete?'':'<span class="htag">'+(g.id===S.id?'In progress':'Unfinished')+'</span>')+'</div>'+
+        '<div class="htots">'+t.map((v,p)=>'<div class="'+(g.complete&&w.includes(p)?'win':'')+'"><b>'+fmt(v)+'</b><span>'+esc(g.names[p])+'</span></div>').join('')+'</div></summary>'+
+        '<div class="hbody">'+gameTable(g)+'<div class="hgact"><button class="hbtn" type="button" data-print>Print this game</button><button class="hbtn del" type="button" data-delete>Delete</button></div></div>';
+      d.querySelector('[data-print]').addEventListener('click',()=>printGames([g]));
+      d.querySelector('[data-delete]').addEventListener('click',()=>{
+        if(!confirm('Delete this game from History?')) return;
+        saveH(loadH().filter(x=>x.id!==g.id));
+        if(g.id===S.id){ const names=S.names; S=blank(); S.names=names; try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){} build(); }
+        renderHistory();
+      });
+      list.appendChild(d);
+    });
+  }
+  function printGames(games){
+    R.getElementById('printArea').innerHTML='<h1>Hand &amp; Foot scores</h1>'+games.map(g=>
+      '<section class="pgame"><h2>'+esc(fmtDate(g.started))+'</h2>'+gameTable(g)+'<p>'+esc(resultLine(g))+'</p></section>').join('');
+    window.print();
+  }
+  const csvCell=v=>{ v=String(v); return /[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; };
+  function downloadCsv(){
+    const lines=[];
+    sortedH().forEach(g=>{
+      lines.push(['Game',fmtDate(g.started),g.complete?'Complete':'Unfinished'].map(csvCell).join(','));
+      lines.push(['Round','Line'].concat(g.names).map(csvCell).join(','));
+      g.rounds.forEach((rd,r)=>{
+        lines.push([r+1,'Books'].concat(rd.map(bookS)).map(csvCell).join(','));
+        lines.push([r+1,'Melds'].concat(rd.map(meldS)).map(csvCell).join(','));
+        lines.push([r+1,'Round'].concat(rd.map(score)).map(csvCell).join(','));
+      });
+      lines.push(['Total',''].concat(totalsOf(g)).map(csvCell).join(','));
+      lines.push('');
+    });
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob([lines.join('\n')],{type:'text/csv'}));
+    a.download='hand-and-foot-history-'+new Date().toISOString().slice(0,10)+'.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  }
+  R.getElementById('hPrintAll').addEventListener('click',()=>printGames(sortedH()));
+  R.getElementById('hCsv').addEventListener('click',downloadCsv);
+
+  /* ---- init ---- */
+  build();
+  syncHistory();
+  let t0='rules'; try{ t0=localStorage.getItem('hf-tab')||'rules'; }catch(e){}
+  show(['rules','score','history'].includes(t0)?t0:'rules');
+})();
+ })(rootHF); }catch(e){ console.error('Hand & Foot failed to start', e); }
+
+  // ===== Game selector =====
+  var tabs = document.querySelectorAll('.seg button');
+  function pickGame(g){
+    tabs.forEach(function(b){ b.setAttribute('aria-selected', String(b.dataset.game===g)); });
+    document.getElementById('host-mt').hidden = g!=='mt';
+    document.getElementById('host-hf').hidden = g!=='hf';
+    try{ localStorage.setItem('gamenight-game', g); }catch(e){}
+    window.scrollTo(0,0);
+  }
+  tabs.forEach(function(b){ b.addEventListener('click', function(){ pickGame(b.dataset.game); }); });
+  var saved = 'mt'; try{ saved = localStorage.getItem('gamenight-game') || 'mt'; }catch(e){}
+  pickGame(saved==='hf' ? 'hf' : 'mt');
 })();
 </script>
 </body>
