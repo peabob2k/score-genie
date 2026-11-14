@@ -6,6 +6,8 @@
 <meta name="color-scheme" content="light dark">
 <title>Game Score Genie</title>
 <meta name="application-name" content="Game Score Genie">
+<meta name="description" content="Keep score at the table for Mexican Train, Hand & Foot, Oh Heck, Golf, Rummy and Spades. Made by Bob Peacock.">
+<meta name="author" content="Bob Peacock">
 <meta name="apple-mobile-web-app-title" content="Game Score Genie">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -30,6 +32,11 @@ body{margin:0;background:#173b2c}
 .pick-list button{display:flex;justify-content:space-between;align-items:center;gap:10px;border:0;background:none;text-align:left;padding:10px 12px;border-radius:8px;font:600 15px Barlow,system-ui,sans-serif;color:#1d1b19;cursor:pointer}
 .pick-list button small{display:block;font-weight:400;font-size:12px;color:#5b7169;margin-top:2px}
 .pick-list button[aria-checked="true"]{background:#e4ece7}
+.pick-list .pick-ico{flex:none;width:28px;height:28px;color:#1f6b52}
+.pick-list .pick-txt{flex:1}
+.pick-cur{display:inline-flex;width:20px;height:20px;flex:none}
+.pick-credit{margin:4px 12px 6px;padding-top:8px;border-top:1px solid #e2e8e4;font:500 12px Barlow,system-ui,sans-serif;color:#5b7169;text-align:center}
+.pick-cur .pick-ico{width:20px;height:20px}
 .pick-list button[aria-checked="true"]::after{content:"✓";color:#1f6b52;font-weight:700}
 .pick-list button:hover{background:#eef3f0}
 .host{display:block}
@@ -52,15 +59,16 @@ body{margin:0;background:#173b2c}
 <body>
 <div class="bar">
   <button type="button" class="pick-btn" id="pickBtn" aria-haspopup="true" aria-expanded="false" aria-controls="pickList">
-    <span class="pick-app">Game Score Genie</span><span class="pick-name" id="pickName">Mexican Train</span><span aria-hidden="true">▾</span>
+    <span class="pick-app">Game Score Genie</span><span class="pick-cur" id="pickIco" aria-hidden="true"></span><span class="pick-name" id="pickName">Mexican Train</span><span aria-hidden="true">▾</span>
   </button>
   <div class="pick-list" id="pickList" role="menu" aria-label="Pick a game" hidden>
-    <button type="button" role="menuitemradio" data-game="mt"><span>Mexican Train<small>Dominoes · low score wins</small></span></button>
-    <button type="button" role="menuitemradio" data-game="hf"><span>Hand &amp; Foot<small>Cards · high score wins</small></span></button>
-    <button type="button" role="menuitemradio" data-game="oh"><span>Oh Heck<small>Cards · bid your tricks</small></span></button>
-    <button type="button" role="menuitemradio" data-game="golf"><span>Golf<small>Cards · 4-card or 6-card</small></span></button>
-    <button type="button" role="menuitemradio" data-game="rummy"><span>Rummy<small>Cards · race to a target</small></span></button>
-    <button type="button" role="menuitemradio" data-game="spades"><span>Spades<small>Cards · bid and take tricks, 2–4 players</small></span></button>
+    <button type="button" role="menuitemradio" data-game="mt"><svg class="pick-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="2" width="11" height="20" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/><line x1="8.5" y1="12" x2="15.5" y2="12" stroke="currentColor" stroke-width="1.4"/><circle cx="9.7" cy="5.2" r="1.15" fill="currentColor"/><circle cx="14.3" cy="8.8" r="1.15" fill="currentColor"/><circle cx="9.7" cy="15.2" r="1.15" fill="currentColor"/><circle cx="12" cy="17" r="1.15" fill="currentColor"/><circle cx="14.3" cy="18.8" r="1.15" fill="currentColor"/></svg><span class="pick-txt">Mexican Train<small>Dominoes · low score wins</small></span></button>
+    <button type="button" role="menuitemradio" data-game="hf"><svg class="pick-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.2c-1.9 2-4 3.4-4 5.3 0 1.3 1 2.2 2.2 2.2.6 0 1.1-.2 1.4-.6-.1 1-.5 1.8-1.2 2.4h3.2c-.7-.6-1.1-1.4-1.2-2.4.3.4.8.6 1.4.6 1.2 0 2.2-.9 2.2-2.2 0-1.9-2.1-3.3-4-5.3z" fill="currentColor"/></svg><span class="pick-txt">Hand &amp; Foot<small>Cards · high score wins</small></span></button>
+    <button type="button" role="menuitemradio" data-game="oh"><svg class="pick-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.2c-1.9 2-4 3.4-4 5.3 0 1.3 1 2.2 2.2 2.2.6 0 1.1-.2 1.4-.6-.1 1-.5 1.8-1.2 2.4h3.2c-.7-.6-1.1-1.4-1.2-2.4.3.4.8.6 1.4.6 1.2 0 2.2-.9 2.2-2.2 0-1.9-2.1-3.3-4-5.3z" fill="currentColor"/></svg><span class="pick-txt">Oh Heck<small>Cards · a.k.a. “Go 💩 on your neighbor”</small></span></button>
+    <button type="button" role="menuitemradio" data-game="golf"><svg class="pick-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.2c-1.9 2-4 3.4-4 5.3 0 1.3 1 2.2 2.2 2.2.6 0 1.1-.2 1.4-.6-.1 1-.5 1.8-1.2 2.4h3.2c-.7-.6-1.1-1.4-1.2-2.4.3.4.8.6 1.4.6 1.2 0 2.2-.9 2.2-2.2 0-1.9-2.1-3.3-4-5.3z" fill="currentColor"/></svg><span class="pick-txt">Golf<small>Cards · 4-card or 6-card</small></span></button>
+    <button type="button" role="menuitemradio" data-game="rummy"><svg class="pick-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.2c-1.9 2-4 3.4-4 5.3 0 1.3 1 2.2 2.2 2.2.6 0 1.1-.2 1.4-.6-.1 1-.5 1.8-1.2 2.4h3.2c-.7-.6-1.1-1.4-1.2-2.4.3.4.8.6 1.4.6 1.2 0 2.2-.9 2.2-2.2 0-1.9-2.1-3.3-4-5.3z" fill="currentColor"/></svg><span class="pick-txt">Rummy<small>Cards · race to a target</small></span></button>
+    <button type="button" role="menuitemradio" data-game="spades"><svg class="pick-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="2.5" width="14" height="19" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 7.2c-1.9 2-4 3.4-4 5.3 0 1.3 1 2.2 2.2 2.2.6 0 1.1-.2 1.4-.6-.1 1-.5 1.8-1.2 2.4h3.2c-.7-.6-1.1-1.4-1.2-2.4.3.4.8.6 1.4.6 1.2 0 2.2-.9 2.2-2.2 0-1.9-2.1-3.3-4-5.3z" fill="currentColor"/></svg><span class="pick-txt">Spades<small>Cards · bid and take tricks, 2–4 players</small></span></button>
+    <p class="pick-credit">Game Score Genie · made by Bob Peacock</p>
   </div>
 </div>
 <div class="ask-wrap" id="askWrap" hidden><div class="ask-scrim"></div><div class="ask-box" role="alertdialog" aria-modal="true" aria-labelledby="askMsg"><p id="askMsg"></p><div class="ask-actions"><button type="button" id="askNo">Cancel</button><button type="button" id="askYes">OK</button></div></div></div>
@@ -4639,6 +4647,8 @@ h1{font-family:"Barlow Condensed",Barlow,sans-serif;font-weight:700;font-size:20
     Object.keys(GAMES).forEach(function(k){ document.getElementById('host-'+k).hidden = k!==g; });
     items.forEach(function(b){ b.setAttribute('aria-checked', String(b.dataset.game===g)); });
     document.getElementById('pickName').textContent = GAMES[g];
+    var ic = pickList.querySelector('[data-game="'+g+'"] .pick-ico');
+    document.getElementById('pickIco').innerHTML = ic ? ic.outerHTML : '';
     try{ localStorage.setItem('gamenight-game', g); }catch(e){}
     window.scrollTo(0,0);
   }
