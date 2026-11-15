@@ -1,6 +1,6 @@
 // Game Score Genie service worker: lets the app install and open without a connection.
 // Change VERSION whenever you upload a new index.html so phones pick up the update.
-const VERSION = 'gsg-v4';
+const VERSION = 'gsg-v15';
 const CORE = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png'];
 
 self.addEventListener('install', (e) => {
